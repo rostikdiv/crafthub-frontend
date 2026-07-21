@@ -8,6 +8,7 @@ import { StampBadge } from '../ui/StampBadge';
 import { useCart } from '../../lib/cartContext';
 import { useAuth } from '../../lib/authContext';
 import { useTranslation } from 'react-i18next';
+import { formatPrice } from '../../lib/productUtils';
 
 type ProductCardProps = {
   product: Product;
@@ -115,10 +116,7 @@ export function ProductCard({ product }: ProductCardProps) {
             {/* Price & Stock */}
             <div className="flex items-end justify-between mb-4">
               <span className="font-mono text-lg font-bold text-slate">
-                $
-                {product.price.toLocaleString('en-US', {
-                  minimumFractionDigits: 2
-                })}
+                {formatPrice(product.price)}
               </span>
               <span
                 className={`text-xs font-semibold uppercase ${product.inStock ? 'text-tactical' : 'text-restricted'}`}>

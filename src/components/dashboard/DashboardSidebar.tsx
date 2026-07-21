@@ -9,6 +9,8 @@ import {
   LogOutIcon
 } from
   'lucide-react';
+import { useAuth } from '../../lib/authContext';
+
 export type DashboardTab =
   'profile' |
   'orders' |
@@ -54,18 +56,27 @@ export function DashboardSidebar({
   activeTab,
   onTabChange
 }: DashboardSidebarProps) {
+  const { user, logout } = useAuth();
+
+  const getInitials = () => {
+    if (!user) return '??';
+    const f = user.firstName ? user.firstName.charAt(0).toUpperCase() : '';
+    const l = user.lastName ? user.lastName.charAt(0).toUpperCase() : '';
+    return f + l || '?';
+  };
+
   return (
     <aside className="w-full lg:w-64 flex-shrink-0 bg-white border border-border rounded-sm h-fit">
       {/* User Info Header */}
       <div className="p-6 border-b border-border bg-cream/50 text-center">
         <div className="w-16 h-16 bg-slate rounded-full mx-auto mb-3 flex items-center justify-center text-white font-bold text-xl">
-          JD
+          {getInitials()}
         </div>
         <h3 className="font-bold text-slate uppercase tracking-tight">
-          John Doe
+          {user ? `${user.firstName} ${user.lastName}` : 'Loading...'}
         </h3>
         <p className="text-xs text-gray-500 font-mono mt-1">
-          OP-ID: 8842-ALPHA
+          OP-ID: {user ? user.id.substring(0, 8).toUpperCase() : '...'}
         </p>
       </div>
 
@@ -97,12 +108,8 @@ export function DashboardSidebar({
       <div className="p-2 border-t border-border mt-2">
         <button
           onClick={() => {
-            // We need to access logout here but Sidebar is a presentational component mostly.
-            // Ideally passing onLogout prop, but strict architecture isn't enforced.
-            // Let's modify the component to accept onLogout or useAuth hook.
-            window.location.href = '/'; // Simple redirect for now or throw error? 
-            // Better: Import useAuth inside Sidebar or pass it down.
-            // Sidebar is imported in DashboardPage. Let's start by adding useAuth hook to Sidebar.
+            logout();
+            window.location.href = '/';
           }}
           className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold uppercase tracking-wide text-restricted hover:bg-red-50 transition-colors rounded-sm">
           <LogOutIcon className="w-4 h-4" />

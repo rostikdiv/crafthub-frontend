@@ -6,6 +6,7 @@ import { Button } from '../ui/Button';
 import { api, orderActionsApi } from '../../lib/api';
 import { Order } from '../../lib/types';
 import { useToast } from '../../lib/toastContext';
+import { formatPrice } from '../../lib/productUtils';
 
 type OrderDetailsModalProps = {
     isOpen: boolean;
@@ -181,13 +182,13 @@ export function OrderDetailsModal({ isOpen, onClose, orderId }: OrderDetailsModa
                                                     </div>
                                                     <div>
                                                         <p className="font-semibold text-slate text-sm">Product ID: {item.productId.substring(0, 8)}...</p>
-                                                        <p className="text-xs text-gray-500">Unit Price: ${item.pricePerUnit}</p>
+                                                        <p className="text-xs text-gray-500">Unit Price: {formatPrice(item.pricePerUnit)}</p>
                                                     </div>
                                                 </div>
                                                 <div className="text-right">
                                                     <p className="text-sm font-mono font-bold">x{item.quantity}</p>
                                                     <p className="text-xs font-bold text-tactical">
-                                                        ${(item.pricePerUnit * item.quantity).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                                        {formatPrice(item.pricePerUnit * item.quantity)}
                                                     </p>
                                                 </div>
                                             </div>
@@ -196,7 +197,7 @@ export function OrderDetailsModal({ isOpen, onClose, orderId }: OrderDetailsModa
                                     <div className="bg-slate/5 px-4 py-3 border-t border-border flex justify-between items-center">
                                         <span className="font-bold text-sm uppercase text-slate">Total</span>
                                         <span className="font-mono text-lg font-black text-slate">
-                                            ${(order.totalPrice || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                            {formatPrice(order.totalPrice || 0)}
                                         </span>
                                     </div>
                                 </div>

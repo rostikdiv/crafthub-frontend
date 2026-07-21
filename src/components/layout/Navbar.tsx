@@ -67,7 +67,7 @@ export function Navbar() {
           {/* Logo */}
           <Link to="/" className="flex items-center group">
             <span className="border-2 border-slate px-3 py-1 font-black text-lg tracking-stencil text-slate group-hover:bg-slate group-hover:text-white transition-colors">
-              CRAFTHUB
+              MILHUB
             </span>
           </Link>
 

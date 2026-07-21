@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { SellerProduct } from '../../pages/SellerStudioPage';
 import { fixImageUrl } from '../../lib/imageUtils';
+import { formatPrice } from '../../lib/productUtils';
 
 const accessLevelStyles: Record<string, string> = {
   PUBLIC: 'bg-green-100 text-green-800 border-green-200',
@@ -78,10 +79,7 @@ export function ProductTable({ products, loading, onEdit, onDelete }: ProductTab
 
               {/* Price */}
               <div className="col-span-2 text-right font-mono font-semibold text-slate">
-                $
-                {product.price.toLocaleString('en-US', {
-                  minimumFractionDigits: 2
-                })}
+                {formatPrice(product.price)}
               </div>
 
               {/* Stock */}

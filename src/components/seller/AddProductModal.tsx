@@ -428,7 +428,7 @@ export function AddProductModal({ isOpen, onClose, productToEdit, onRefresh }: A
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Input
-                      label="Price ($)"
+                      label="Price (грн)"
                       type="number"
                       value={formData.price}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('price', e.target.value)}

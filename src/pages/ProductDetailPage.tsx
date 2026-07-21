@@ -19,6 +19,7 @@ import { api } from '../lib/api';
 import { Product, Seller } from '../lib/types';
 import { fixImageUrl } from '../lib/imageUtils';
 import { useTranslation } from 'react-i18next';
+import { formatPrice } from '../lib/productUtils';
 
 export function ProductDetailPage() {
   const { t } = useTranslation();
@@ -235,10 +236,7 @@ export function ProductDetailPage() {
                   {t('product.unitPrice')}
                 </p>
                 <span className="font-mono text-3xl font-bold text-slate">
-                  $
-                  {product.price.toLocaleString('en-US', {
-                    minimumFractionDigits: 2
-                  })}
+                  {formatPrice(product.price)}
                 </span>
               </div>
               <span

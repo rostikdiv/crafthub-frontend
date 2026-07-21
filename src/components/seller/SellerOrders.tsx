@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { sellerApi, orderActionsApi } from '../../lib/api';
 import { Order, OrderStatus } from '../../lib/types';
+import { formatPrice } from '../../lib/productUtils';
 import { useToast } from '../../lib/toastContext';
 import { Button } from '../ui/Button';
 import {
@@ -14,13 +15,16 @@ export function SellerOrders() {
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+    const [page, setPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(1);
     const { success, error: showError } = useToast();
 
     const fetchOrders = async () => {
         setLoading(true);
         try {
-            const { data } = await sellerApi.getOrders();
+            const { data } = await sellerApi.getOrders(page, 10);
             setOrders(data.content || []);
+            setTotalPages(data.totalPages || 1);
         } catch (error) {
             console.error('Failed to fetch orders', error);
             showError('Failed to load orders');
@@ -31,7 +35,7 @@ export function SellerOrders() {
 
     useEffect(() => {
         fetchOrders();
-    }, []);
+    }, [page]);
 
     const updateStatus = async (orderId: string, info: string, newStatus: string) => {
         try {
@@ -120,7 +124,7 @@ export function SellerOrders() {
                                     <div className="text-xs text-gray-400">{order.deliveryInfo.recipientPhone || 'No phone'}</div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium font-mono">
-                                    ${order.totalPrice.toFixed(2)}
+                                    {formatPrice(order.totalPrice)}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <StatusBadge status={order.status} />
@@ -138,6 +142,14 @@ export function SellerOrders() {
                     </tbody>
                 </table>
             </div>
+
+            {totalPages > 1 && (
+                <div className="flex justify-center items-center gap-4 mt-6">
+                    <Button variant="secondary" disabled={page === 0} onClick={() => setPage(p => Math.max(0, p - 1))}>Previous</Button>
+                    <span className="text-sm font-medium text-slate-600">Page {page + 1} of {totalPages}</span>
+                    <Button variant="secondary" disabled={page >= totalPages - 1} onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}>Next</Button>
+                </div>
+            )}
 
             {/* Order Detail Modal */}
             <AnimatePresence>
@@ -195,14 +207,14 @@ export function SellerOrders() {
                                                             <p className="text-xs text-gray-500">Item ID: {item.productId.slice(0, 8)}</p>
                                                             <div className="mt-2 flex justify-between items-center">
                                                                 <span className="text-sm text-gray-600">Qty: {item.quantity}</span>
-                                                                <span className="font-mono font-medium">${item.pricePerUnit?.toFixed(2)}</span>
+                                                                <span className="font-mono font-medium">{formatPrice(item.pricePerUnit)}</span>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 ))}
                                             </div>
                                             <div className="mt-4 flex justify-end text-lg font-bold text-gray-900 border-t pt-4">
-                                                Total: ${selectedOrder.totalPrice.toFixed(2)}
+                                                Total: {formatPrice(selectedOrder.totalPrice)}
                                             </div>
                                         </div>
                                     </div>
@@ -275,7 +287,7 @@ export function SellerOrders() {
                                                 </div>
                                                 {selectedOrder.paymentMethod === 'COD' && (
                                                     <div className="mt-2 pt-2 border-t border-gray-200">
-                                                        <p className="text-xs font-bold text-purple-700">⚠️ Collect Payment on Delivery: ${selectedOrder.totalPrice.toFixed(2)}</p>
+                                                        <p className="text-xs font-bold text-purple-700">⚠️ Collect Payment on Delivery: {formatPrice(selectedOrder.totalPrice)}</p>
                                                     </div>
                                                 )}
                                             </div>

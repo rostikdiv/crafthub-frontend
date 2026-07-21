@@ -27,3 +27,13 @@ export function mapApiProduct(p: any): Product {
     imageUrls: p.imageUrls,
   };
 }
+
+/**
+ * Formats a number as a Ukrainian Hryvnia price (e.g. 1 500,00 грн).
+ */
+export function formatPrice(price: number): string {
+  return `${Number(price || 0).toLocaleString('uk-UA', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  })} грн`;
+}

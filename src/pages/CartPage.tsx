@@ -15,6 +15,7 @@ import { getSellerById } from '../lib/mockData';
 import { Button } from '../components/ui/Button';
 import { fixImageUrl } from '../lib/imageUtils';
 import { useTranslation } from 'react-i18next';
+import { formatPrice } from '../lib/productUtils';
 
 export function CartPage() {
   const { t } = useTranslation();
@@ -181,7 +182,7 @@ export function CartPage() {
                           </div>
 
                           <div className="flex flex-col items-end gap-2">
-                            <p className="font-mono font-bold text-slate">${(item.product.price * item.quantity).toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
+                            <p className="font-mono font-bold text-slate">{formatPrice(item.product.price * item.quantity)}</p>
                             <div className="flex items-center border border-border rounded-sm bg-white">
                               <button onClick={() => updateQuantity(item.product.id, item.quantity - 1)} className="px-2 py-1 hover:bg-gray-50 transition-colors"><MinusIcon className="w-3 h-3" /></button>
                               <span className="px-3 py-1 font-mono text-sm border-x border-border">{item.quantity}</span>
@@ -208,16 +209,16 @@ export function CartPage() {
               <div className="p-4 space-y-4">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">{t('cart.selectedItems', { count: selectedItems.length })}</span>
-                  <span className="font-mono font-semibold">${total.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                  <span className="font-mono font-semibold">{formatPrice(total)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">{t('cart.shipping')}</span>
-                  <span className="font-mono font-semibold">{total === 0 ? '$0.00' : shipping === 0 ? t('cart.free') : `$${shipping.toFixed(2)}`}</span>
+                  <span className="font-mono font-semibold">{total === 0 ? formatPrice(0) : shipping === 0 ? t('cart.free') : formatPrice(shipping)}</span>
                 </div>
                 {shipping > 0 && total > 0 && <p className="text-[10px] text-gray-500">{t('cart.freeShippingMsg')}</p>}
                 <div className="border-t border-border pt-4 flex justify-between">
                   <span className="font-bold uppercase text-sm">{t('cart.total')}</span>
-                  <span className="font-mono text-xl font-bold text-slate">${grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                  <span className="font-mono text-xl font-bold text-slate">{formatPrice(grandTotal)}</span>
                 </div>
                 <Button fullWidth onClick={handleProceedToCheckout} disabled={selectedItems.length === 0}>
                   {t('cart.proceedToCheckout')}

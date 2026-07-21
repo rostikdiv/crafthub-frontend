@@ -5,6 +5,7 @@ import { Button } from '../ui/Button';
 import { sellerApi, orderActionsApi } from '../../lib/api';
 import { useToast } from '../../lib/toastContext';
 import { Order } from '../../lib/types';
+import { formatPrice } from '../../lib/productUtils';
 
 export function SellerOrderConfirmation() {
     const { success, error: showError } = useToast();
@@ -97,7 +98,7 @@ export function SellerOrderConfirmation() {
                                             {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : '-'}
                                         </div>
                                     </td>
-                                    <td className="p-4 font-bold text-tactical">${order.totalPrice.toFixed(2)}</td>
+                                    <td className="p-4 font-bold text-tactical">{formatPrice(order.totalPrice)}</td>
                                     <td className="p-4">
                                         <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide border ${order.paymentMethod === 'COD'
                                             ? 'bg-yellow-50 text-yellow-700 border-yellow-200'
@@ -208,7 +209,7 @@ export function SellerOrderConfirmation() {
                                         <h4 className="font-bold text-xs uppercase text-gray-500 mb-3">Payment Info</h4>
                                         <div className="space-y-2 text-sm">
                                             <p><span className="font-semibold">Method:</span> {selectedOrder.paymentMethod}</p>
-                                            <p><span className="font-semibold">Total:</span> ${selectedOrder.totalPrice.toFixed(2)}</p>
+                                            <p><span className="font-semibold">Total:</span> {formatPrice(selectedOrder.totalPrice)}</p>
                                             <p><span className="font-semibold">Status:</span> <span className="text-yellow-600 font-bold">{selectedOrder.status}</span></p>
                                         </div>
                                     </div>
@@ -232,8 +233,8 @@ export function SellerOrderConfirmation() {
                                                     <tr key={idx}>
                                                         <td className="p-3">{item.name}</td>
                                                         <td className="p-3 text-center">{item.quantity}</td>
-                                                        <td className="p-3 text-right">${item.pricePerUnit.toFixed(2)}</td>
-                                                        <td className="p-3 text-right font-bold">${(item.quantity * item.pricePerUnit).toFixed(2)}</td>
+                                                        <td className="p-3 text-right">{formatPrice(item.pricePerUnit)}</td>
+                                                        <td className="p-3 text-right font-bold">{formatPrice(item.quantity * item.pricePerUnit)}</td>
                                                     </tr>
                                                 ))}
                                             </tbody>

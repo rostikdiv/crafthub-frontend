@@ -4,6 +4,7 @@ import { PackageIcon, ClockIcon, MapPinIcon, CreditCardIcon } from 'lucide-react
 import { Button } from '../ui/Button';
 import { api } from '../../lib/api';
 import { OrderDetailsModal } from './OrderDetailsModal';
+import { formatPrice } from '../../lib/productUtils';
 
 import { Order, OrderStatus } from '../../lib/types';
 
@@ -21,13 +22,16 @@ export function OrdersView() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     const fetchOrders = async () => {
       setLoading(true);
       try {
-        const { data } = await api.get('/orders/my');
+        const { data } = await api.get('/orders/my', { params: { page, size: 10 } });
         const content = data.content ? data.content : data;
+        setTotalPages(data.totalPages || 1);
 
         const mappedOrders = content.map((o: any): Order => ({
           id: o.id,
@@ -49,7 +53,7 @@ export function OrdersView() {
     };
 
     fetchOrders();
-  }, []);
+  }, [page]);
 
   const formatDate = (dateString: string | number[]) => {
     if (!dateString) return 'N/A';
@@ -128,7 +132,7 @@ export function OrdersView() {
                 <div className="text-right">
                   <p className="text-[10px] text-gray-500 uppercase">Total Price</p>
                   <p className="font-mono font-bold text-slate text-lg">
-                    ${order.totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    {formatPrice(order.totalPrice)}
                   </p>
                 </div>
               </div>
@@ -155,7 +159,7 @@ export function OrdersView() {
                       <div className="text-right">
                         <p className="text-[10px] text-gray-500 uppercase">Unit Price</p>
                         <p className="font-mono font-bold text-slate">
-                          ${item.pricePerUnit.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                          {formatPrice(item.pricePerUnit)}
                         </p>
                       </div>
                     </div>
@@ -177,6 +181,14 @@ export function OrdersView() {
 
             </motion.div>
           ))}
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 mt-8">
+          <Button variant="secondary" disabled={page === 0} onClick={() => setPage(p => Math.max(0, p - 1))}>Previous</Button>
+          <span className="text-sm font-medium text-slate-600">Page {page + 1} of {totalPages}</span>
+          <Button variant="secondary" disabled={page >= totalPages - 1} onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}>Next</Button>
         </div>
       )}
 

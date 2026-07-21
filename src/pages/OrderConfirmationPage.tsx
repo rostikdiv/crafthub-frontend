@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { CheckCircleIcon, PackageIcon, PrinterIcon, ArrowRightIcon, CreditCardIcon, XIcon, ShieldCheckIcon } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { api } from '../lib/api'; // Or use axios if url is absolute and external
+import { formatPrice } from '../lib/productUtils';
 
 export function OrderConfirmationPage() {
     const location = useLocation();
@@ -111,7 +112,7 @@ export function OrderConfirmationPage() {
                             <div>
                                 <p className="font-bold text-sm text-slate uppercase">Total Amount</p>
                                 <p className="text-xl font-mono font-bold text-tactical">
-                                    ${Number(amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                    {formatPrice(amount)}
                                 </p>
                             </div>
                         </div>
@@ -159,7 +160,7 @@ export function OrderConfirmationPage() {
                                 <div className="text-center">
                                     <p className="text-sm text-gray-500 uppercase tracking-widest mb-1">Total to Pay</p>
                                     <div className="text-4xl font-mono font-black text-slate">
-                                        ${Number(amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                        {formatPrice(amount)}
                                     </div>
                                 </div>
 
@@ -183,7 +184,7 @@ export function OrderConfirmationPage() {
                                     disabled={isProcessingPayment}
                                     className="w-full h-12 text-lg bg-green-600 hover:bg-green-700"
                                 >
-                                    {isProcessingPayment ? 'PROCESSING...' : `PAY $${Number(amount).toFixed(2)}`}
+                                    {isProcessingPayment ? 'PROCESSING...' : `PAY ${formatPrice(amount)}`}
                                 </Button>
                             </div>
 

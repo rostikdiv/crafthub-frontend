@@ -8,6 +8,7 @@ import { DeliverySelector } from '../components/checkout/DeliverySelector';
 import { DeliveryDetails, PaymentMethod, SellerPoint, CartItem, SavedAddress } from '../lib/types';
 import { api } from '../lib/api';
 import { useTranslation } from 'react-i18next';
+import { formatPrice } from '../lib/productUtils';
 
 type FormSection = 'shipping' | 'payment' | 'review';
 
@@ -295,7 +296,7 @@ export function CheckoutPage() {
                       {checkoutItems.map((item) => (
                         <div key={item.product.id} className="flex justify-between text-sm">
                           <span className="text-gray-600">{item.product.name} × {item.quantity}</span>
-                          <span className="font-mono font-semibold">${(item.product.price * item.quantity).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                          <span className="font-mono font-semibold">{formatPrice(item.product.price * item.quantity)}</span>
                         </div>
                       ))}
                     </div>
@@ -328,15 +329,15 @@ export function CheckoutPage() {
               <div className="p-4 space-y-4">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">{t('checkout.subtotal')}</span>
-                  <span className="font-mono font-semibold">${total.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                  <span className="font-mono font-semibold">{formatPrice(total)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">{t('cart.shipping')}</span>
-                  <span className="font-mono font-semibold">{shipping === 0 ? t('cart.free') : `$${shipping.toFixed(2)}`}</span>
+                  <span className="font-mono font-semibold">{shipping === 0 ? t('cart.free') : formatPrice(shipping)}</span>
                 </div>
                 <div className="border-t border-border pt-4 flex justify-between">
                   <span className="font-bold uppercase text-sm">{t('cart.total')}</span>
-                  <span className="font-mono text-xl font-bold text-slate">${grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                  <span className="font-mono text-xl font-bold text-slate">{formatPrice(grandTotal)}</span>
                 </div>
               </div>
             </div>

@@ -7,14 +7,14 @@ export function Footer() {
           {/* Logo Section */}
           <div className="md:col-span-1">
             <span className="border-2 border-cream px-3 py-1 font-black text-lg tracking-stencil inline-block">
-              CRAFTHUB
+              MILHUB
             </span>
             <p className="mt-4 text-sm text-gray-400 leading-relaxed">
               Mission-ready gear from verified suppliers. Serving operators
               since 2020.
             </p>
             <p className="mt-4 text-xs font-mono text-gray-500">
-              DOC REF: CH-FTR-2026
+              DOC REF: MH-FTR-2026
             </p>
           </div>
 
@@ -86,7 +86,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="mt-12 pt-6 border-t border-gray-700 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-gray-500">
-            © 2026 CRAFTHUB. All rights reserved. UNCLASSIFIED // FOUO
+            © 2026 MILHUB. All rights reserved. UNCLASSIFIED // FOUO
           </p>
           <p className="text-xs font-mono text-gray-600">
             ISSUED: FEB 06, 2026 | REV: 1.0.0
