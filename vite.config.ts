@@ -5,6 +5,14 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    allowedHosts: ['rachell-diaphanometric-viva.ngrok-free.dev']
+    allowedHosts: ['rachell-diaphanometric-viva.ngrok-free.dev'],
+    proxy: {
+      '/api/v1': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path,
+      }
+    }
   }
 })
