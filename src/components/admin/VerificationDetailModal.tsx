@@ -59,7 +59,6 @@ export function VerificationDetailModal({
                 activeUrl = URL.createObjectURL(response.data);
                 setPreviewUrl(activeUrl);
             } catch (err) {
-                console.error("Failed to load document preview", err);
                 setPreviewUrl(null);
             }
         };
@@ -84,7 +83,6 @@ export function VerificationDetailModal({
                     setSelectedDocIndex(0);
                 })
                 .catch(err => {
-                    console.error('Failed to fetch docs', err);
                     showError('Failed to load documents');
                 })
                 .finally(() => setLoadingDocs(false));
@@ -94,7 +92,7 @@ export function VerificationDetailModal({
                 .then(({ data }) => setUserDetails(data))
                 .catch(err => console.error('Failed to load user details', err))
                 .finally(() => setLoadingDetails(false));
-                
+
         } else {
             setDocs([]);
             setUserDetails(null);
@@ -117,7 +115,6 @@ export function VerificationDetailModal({
             // Optional: reload or callback to refresh table
             window.location.reload();
         } catch (error) {
-            console.error('Action failed', error);
             showError(`Failed to ${status.toLowerCase()} request.`);
         } finally {
             setLoading(false);
@@ -137,7 +134,6 @@ export function VerificationDetailModal({
                 d.id === docId ? { ...d, status: isApproved ? 'APPROVED' : 'REJECTED' } : d
             ));
         } catch (e) {
-            console.error('Doc verification failed', e);
             showError('Failed to update document status');
         }
     };

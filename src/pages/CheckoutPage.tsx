@@ -63,7 +63,6 @@ export function CheckoutPage() {
             setSellerPickupPoints(data.pickupPoints);
           }
         } catch (e) {
-          console.error("Failed to fetch seller profile", e);
         }
       }
     };
@@ -77,7 +76,6 @@ export function CheckoutPage() {
         const { data } = await api.get('/users/me/addresses');
         setSavedAddresses(data);
       } catch (e) {
-        console.error("Failed to fetch saved addresses", e);
       }
     };
     fetchAddresses();
@@ -175,7 +173,6 @@ export function CheckoutPage() {
         }
       });
     } catch (error: any) {
-      console.error('Order submission failed', error);
       if (error.response && error.response.data && error.response.data.message) {
         alert(`${t('checkout.orderFailed')} ${error.response.data.message}`);
       } else {

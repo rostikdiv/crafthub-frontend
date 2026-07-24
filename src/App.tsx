@@ -21,6 +21,8 @@ import { ViewDocument } from './pages/ViewDocument';
 import { MilitaryDashboardPage } from './pages/MilitaryDashboardPage';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
+import { ErrorBoundary } from './components/ErrorBoundary';
+
 function AnimatedRoutes() {
   const location = useLocation();
   return (
@@ -95,20 +97,22 @@ function AnimatedRoutes() {
 }
 export function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <ToastProvider>
-          <CartProvider>
-            <div className="min-h-screen flex flex-col bg-cream">
-              <Navbar />
-              <main className="flex-1">
-                <AnimatedRoutes />
-              </main>
-              <Footer />
-            </div>
-          </CartProvider>
-        </ToastProvider>
-      </AuthProvider>
-    </BrowserRouter>);
-
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AuthProvider>
+          <ToastProvider>
+            <CartProvider>
+              <div className="min-h-screen flex flex-col bg-cream">
+                <Navbar />
+                <main className="flex-1">
+                  <AnimatedRoutes />
+                </main>
+                <Footer />
+              </div>
+            </CartProvider>
+          </ToastProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
+  );
 }
