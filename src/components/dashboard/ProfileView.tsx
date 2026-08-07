@@ -454,10 +454,10 @@ export function ProfileView() {
                             <X className="w-5 h-5" />
                         </button>
                         <h3 className="text-lg font-bold text-red-600 mb-4 flex items-center gap-2">
-                            <Shield className="w-5 h-5" /> Увага!
+                            <Shield className="w-5 h-5" /> {t('militaryDashboard.warningTitle')}
                         </h3>
                         <p className="text-sm text-slate mb-6 leading-relaxed">
-                            Якщо ви зміните дані військового підрозділу, ваш поточний статус верифікації буде скасовано. Вам доведеться зачекати на повторну перевірку адміністратором. Ви впевнені, що хочете продовжити?
+                            {t('militaryDashboard.editWarningMsg')}
                         </p>
                         <div className="flex justify-end gap-3">
                             <Button
@@ -465,7 +465,7 @@ export function ProfileView() {
                                 variant="outline"
                                 onClick={() => setIsEditMilitaryWarningOpen(false)}
                             >
-                                Відмінити
+                                {t('militaryDashboard.cancel')}
                             </Button>
                             <Button
                                 type="button"
@@ -475,7 +475,7 @@ export function ProfileView() {
                                 }}
                                 className="bg-red-600 hover:bg-red-700 text-white"
                             >
-                                Продовжити
+                                {t('militaryDashboard.continue')}
                             </Button>
                         </div>
                     </div>
@@ -493,7 +493,7 @@ export function ProfileView() {
                             <X className="w-5 h-5" />
                         </button>
                         <h3 className="text-lg font-bold text-slate mb-6">
-                            Редагування військового профілю
+                            {t('militaryDashboard.editProfileTitle')}
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <Input

@@ -311,7 +311,12 @@
     "docUrl": "Document URL",
     "docUrlPlaceholder": "https://drive.google.com/...",
     "submitting": "SUBMITTING...",
-    "submitDoc": "SUBMIT DOCUMENT"
+    "submitDoc": "SUBMIT DOCUMENT",
+    "warningTitle": "Warning!",
+    "editWarningMsg": "If you change military unit data, your current verification status will be revoked. You will have to wait for a re-check by the administrator. Are you sure you want to continue?",
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "editProfileTitle": "Edit Military Profile"
   },
   "sellerStudio": {
     "deleteSuccess": "Product deleted successfully",

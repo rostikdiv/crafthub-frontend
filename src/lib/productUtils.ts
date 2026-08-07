@@ -35,5 +35,5 @@ export function formatPrice(price: number): string {
   return `${Number(price || 0).toLocaleString('uk-UA', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
-  })} грн`;
+  })} UAH`;
 }

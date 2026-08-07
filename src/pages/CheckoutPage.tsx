@@ -304,7 +304,7 @@ export function CheckoutPage() {
                       {formData.firstName} {formData.lastName}<br />
                       <span className="font-semibold">{deliveryDetails.provider} - {deliveryDetails.type}</span><br />
                       {deliveryDetails.type === 'BRANCH' && <>{deliveryDetails.cityName}, {deliveryDetails.branchName || deliveryDetails.branchRef}</>}
-                      {deliveryDetails.type === 'COURIER' && <>{deliveryDetails.cityName}, {deliveryDetails.street} {deliveryDetails.building} {deliveryDetails.apartment && `, кв. ${deliveryDetails.apartment}`}</>}
+                      {deliveryDetails.type === 'COURIER' && <>{deliveryDetails.cityName}, {deliveryDetails.street} {deliveryDetails.building} {deliveryDetails.apartment && `, ${t('address.apt')} ${deliveryDetails.apartment}`}</>}
                       {deliveryDetails.type === 'SELF_PICKUP' && <>Pickup Point: {deliveryDetails.pickupAddress}</>}
                       {deliveryDetails.zipCode && <><br />{deliveryDetails.zipCode}</>}
                     </p>
