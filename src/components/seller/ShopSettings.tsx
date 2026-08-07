@@ -23,6 +23,7 @@ export function ShopSettings() {
     const [description, setDescription] = useState('');
     const [taxId, setTaxId] = useState('');
     const [logoUrl, setLogoUrl] = useState<string | null>(null);
+    const [autoConfirmOrders, setAutoConfirmOrders] = useState(true);
 
     // Stats for View Mode
     const [stats, setStats] = useState({ rating: 0, reviewCount: 0 });
@@ -69,6 +70,7 @@ export function ShopSettings() {
                 setCompanyName(data.companyName || '');
                 setDescription(data.description || '');
                 setLogoUrl(data.logoUrl || null);
+                setAutoConfirmOrders(data.autoConfirmOrders !== undefined ? data.autoConfirmOrders : true);
                 setStats({
                     rating: data.rating || 0,
                     reviewCount: data.reviewCount || 0
@@ -93,20 +95,22 @@ export function ShopSettings() {
         setSubmitting(true);
         try {
             if (mode === 'create') {
-                await api.post('/users/me/seller-profile', {
+                await api.post('/sellers/profile', {
                     companyName,
                     description,
                     taxId,
-                    logoUrl
+                    logoUrl,
+                    autoConfirmOrders
                 });
                 success('Shop profile created successfully!');
                 setMode('view');
             } else {
-                await api.put('/sellers/seller-profile', {
+                await api.put('/sellers/profile', {
                     companyName,
                     description,
                     logoUrl,
-                    taxId: null // Tax ID usually cannot be changed without re-verification
+                    taxId: null, // Tax ID usually cannot be changed without re-verification
+                    autoConfirmOrders
                 });
                 success('Shop profile updated successfully.');
                 setMode('view');
@@ -161,6 +165,12 @@ export function ShopSettings() {
                             <div>
                                 <h3 className="text-xs font-bold uppercase text-gray-400 tracking-wider mb-1">About</h3>
                                 <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{description || 'No description provided.'}</p>
+                            </div>
+                            <div>
+                                <h3 className="text-xs font-bold uppercase text-gray-400 tracking-wider mb-1">Settings</h3>
+                                <p className="text-gray-700 text-sm">
+                                    Auto-Confirm Orders: <span className="font-semibold">{autoConfirmOrders ? 'Yes' : 'No'}</span>
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -262,6 +272,22 @@ export function ShopSettings() {
                             placeholder="Tell customers about your brand..."
                             required
                         />
+                    </div>
+
+                    <div className="flex items-center gap-3 p-4 bg-gray-50 border border-border rounded-sm">
+                        <input
+                            type="checkbox"
+                            id="autoConfirmOrders"
+                            checked={autoConfirmOrders}
+                            onChange={(e) => setAutoConfirmOrders(e.target.checked)}
+                            className="w-4 h-4 text-tactical border-gray-300 rounded focus:ring-tactical"
+                        />
+                        <div>
+                            <label htmlFor="autoConfirmOrders" className="text-sm font-bold text-slate block cursor-pointer">
+                                Auto-Confirm New Orders
+                            </label>
+                            <p className="text-xs text-gray-500">Automatically accept orders without manual confirmation.</p>
+                        </div>
                     </div>
 
                     <div className="flex justify-end gap-3 pt-4 border-t border-border">
