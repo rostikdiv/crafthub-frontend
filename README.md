@@ -1,8 +1,8 @@
-# CraftHub Frontend
+# MilHub Frontend
 
-*Looking for the backend? The Spring Boot Microservices repository can be found here: [CraftHub Microservices](https://github.com/rostikdiv/crafthub-microservices.git)*
+*Looking for the backend? The Spring Boot Microservices repository can be found here: [MilHub Microservices](https://github.com/rostikdiv/milhub-microservices.git)*
 
-This is the React frontend for the CraftHub handmade marketplace. It provides the user interface for buyers, sellers, and administrators.
+This is the React frontend for the MilHub handmade marketplace. It provides the user interface for buyers, sellers, and administrators.
 
 ## 📸 Screenshots
 
