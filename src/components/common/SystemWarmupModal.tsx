@@ -36,9 +36,6 @@ const getSanitizedApiUrl = (): string => {
 
 const API_BASE_URL = getSanitizedApiUrl();
 
-// Extract root Gateway URL (without /api/v1) for liveness probe
-const GATEWAY_ROOT_URL = API_BASE_URL.replace(/\/api\/v1\/?$/, '');
-
 export const SystemWarmupModal: React.FC = () => {
   const [isVisible, setIsVisible] = useState<boolean>(true);
   const [isWarmingUp, setIsWarmingUp] = useState<boolean>(true);
@@ -64,37 +61,29 @@ export const SystemWarmupModal: React.FC = () => {
       if (!isMounted) return;
       setAttemptCount((prev) => prev + 1);
 
-      // Phase 1: Ping API Gateway Liveness Probe first to ensure Gateway is awake
       try {
-        const gatewayCheck = await axios.get(`${GATEWAY_ROOT_URL}/actuator/health/liveness`, {
-          timeout: 5000,
+        // Query API Gateway Warmup Endpoint to warm up & verify all microservices
+        const warmupResponse = await axios.get<SystemStatusResponse>(`${API_BASE_URL}/system/warmup`, {
+          timeout: 15000,
         });
 
-        if (gatewayCheck.status === 200) {
+        if (warmupResponse.data) {
           setGatewayStatus('CONNECTED');
+          if (warmupResponse.data.services) {
+            setServicesStatus(warmupResponse.data.services);
+          }
 
-          // Phase 2: Now query Gateway Warmup Endpoint to warm up and verify all downstream microservices
-          const warmupResponse = await axios.get<SystemStatusResponse>(`${API_BASE_URL}/system/warmup`, {
-            timeout: 12000,
-          });
-
-          if (warmupResponse.data) {
-            if (warmupResponse.data.services) {
-              setServicesStatus(warmupResponse.data.services);
-            }
-
-            if (warmupResponse.data.status === 'UP') {
-              setIsWarmingUp(false);
-              // Hide modal smoothly after 1.5s once all services are ready
-              timerId = setTimeout(() => {
-                if (isMounted) setIsVisible(false);
-              }, 1500);
-              return;
-            }
+          if (warmupResponse.data.status === 'UP') {
+            setIsWarmingUp(false);
+            // Hide modal smoothly after 1.5s once all services are ready
+            timerId = setTimeout(() => {
+              if (isMounted) setIsVisible(false);
+            }, 1500);
+            return;
           }
         }
       } catch (error) {
-        console.warn('API Gateway Liveness or microservice warmup pending...', error);
+        console.warn('API Gateway microservice warmup pending...', error);
         setGatewayStatus('CONNECTING');
       }
 
