@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Server, CheckCircle2, RefreshCw, Activity, AlertCircle } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, RefreshCw, Activity, Server, Radio } from 'lucide-react';
 import axios from 'axios';
 
 interface SystemStatusResponse {
@@ -18,13 +18,13 @@ export const SystemWarmupModal: React.FC = () => {
   const [attemptCount, setAttemptCount] = useState<number>(0);
 
   const serviceNamesMap: Record<string, string> = {
-    'user-service': 'Сервіс Користувачів',
-    'product-service': 'Каталог Товарів',
-    'order-service': 'Управління Замовленнями',
-    'cart-service': 'Кошик',
-    'notification-service': 'Сповіщення',
-    'payment-service': 'Оплати',
-    'delivery-service': 'Доставка & Логістика',
+    'user-service': 'User Service & Authentication',
+    'product-service': 'Tactical Catalog & Products',
+    'order-service': 'Order Management System',
+    'cart-service': 'Cart & Supplies Session',
+    'notification-service': 'Dispatch & Notification Service',
+    'payment-service': 'Payment Gateway',
+    'delivery-service': 'Logistics & NovaPoshta Delivery',
   };
 
   useEffect(() => {
@@ -79,64 +79,70 @@ export const SystemWarmupModal: React.FC = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-slate/80 backdrop-blur-md p-4 font-sans"
       >
         <motion.div
-          initial={{ scale: 0.9, y: 20 }}
+          initial={{ scale: 0.92, y: 15 }}
           animate={{ scale: 1, y: 0 }}
-          className="bg-white/95 dark:bg-zinc-900/95 border border-zinc-200 dark:border-zinc-800 shadow-2xl rounded-2xl p-6 sm:p-8 max-w-md w-full text-zinc-900 dark:text-zinc-100 relative overflow-hidden"
+          className="bg-cream dark:bg-slate border-2 border-tactical/30 shadow-2xl rounded-2xl p-6 sm:p-8 max-w-md w-full text-slate dark:text-cream relative overflow-hidden"
         >
-          {/* Top Decorative Gradient */}
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-500 via-emerald-500 to-blue-500" />
+          {/* Top Tactical Accent Bar */}
+          <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-tactical via-amber to-tactical" />
 
           {/* Header */}
-          <div className="flex items-center space-x-3 mb-4">
-            <div className="p-3 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-xl flex items-center justify-center">
+          <div className="flex items-center space-x-3.5 mb-5">
+            <div className="p-3 bg-tactical/10 border border-tactical/20 text-tactical rounded-xl flex items-center justify-center">
               {isWarmingUp ? (
-                <RefreshCw className="w-6 h-6 animate-spin" />
+                <RefreshCw className="w-6 h-6 animate-spin text-amber" />
               ) : (
-                <CheckCircle2 className="w-6 h-6 text-emerald-500" />
+                <ShieldCheck className="w-6 h-6 text-tactical" />
               )}
             </div>
             <div>
-              <h3 className="text-lg font-bold">
-                {isWarmingUp ? 'Розігрів Платформи MilHub' : 'Система Готова!'}
+              <div className="flex items-center space-x-2">
+                <span className="text-[10px] font-mono tracking-stencil uppercase px-2 py-0.5 rounded bg-tactical/10 text-tactical border border-tactical/20">
+                  MILHUB SYSTEM
+                </span>
+              </div>
+              <h3 className="text-lg font-bold text-slate dark:text-cream mt-0.5">
+                {isWarmingUp ? 'Platform Initialization' : 'System Operational'}
               </h3>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              <p className="text-xs text-slate/70 dark:text-cream/70">
                 {isWarmingUp
-                  ? 'Підключення до хмарних мікросервісів...'
-                  : 'Усі сервіси успішно підняті'}
+                  ? 'Establishing secure link to cloud services...'
+                  : 'All tactical microservices ready'}
               </p>
             </div>
           </div>
 
-          {/* Progress Banner Status */}
-          <div className="mb-6 bg-zinc-100 dark:bg-zinc-800/60 rounded-xl p-3 text-sm">
-            <div className="flex justify-between items-center mb-1">
-              <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-300">
-                Статус Шлюзу (API Gateway):
+          {/* Gateway Status Banner */}
+          <div className="mb-5 bg-white dark:bg-slate/60 border border-border/80 rounded-xl p-3.5 shadow-sm">
+            <div className="flex justify-between items-center mb-1.5">
+              <span className="text-xs font-semibold flex items-center space-x-1.5 text-slate/80 dark:text-cream/80">
+                <Radio className="w-3.5 h-3.5 text-tactical animate-pulse" />
+                <span>API Gateway Link:</span>
               </span>
               <span
-                className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                className={`text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full border ${
                   gatewayStatus === 'CONNECTED'
-                    ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                    : 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                    ? 'bg-tactical/10 text-tactical border-tactical/30'
+                    : 'bg-amber/10 text-amber border-amber/30 animate-pulse'
                 }`}
               >
-                {gatewayStatus === 'CONNECTED' ? 'АКТИВНИЙ' : `ПІДКЛЮЧЕННЯ (${attemptCount})`}
+                {gatewayStatus === 'CONNECTED' ? 'ONLINE' : `CONNECTING (${attemptCount})`}
               </span>
             </div>
 
-            {/* Progress bar */}
-            <div className="w-full bg-zinc-200 dark:bg-zinc-700 h-2 rounded-full overflow-hidden mt-2">
+            {/* Progress Bar */}
+            <div className="w-full bg-slate/10 dark:bg-cream/10 h-2 rounded-full overflow-hidden mt-2">
               <motion.div
-                className="h-full bg-emerald-500"
+                className="h-full bg-tactical"
                 initial={{ width: '10%' }}
                 animate={{
                   width: `${
                     gatewayStatus === 'CONNECTING'
-                      ? 20
-                      : Math.max(30, (readyServicesCount / totalServices) * 100)
+                      ? 25
+                      : Math.max(35, (readyServicesCount / totalServices) * 100)
                   }%`,
                 }}
                 transition={{ duration: 0.4 }}
@@ -144,28 +150,28 @@ export const SystemWarmupModal: React.FC = () => {
             </div>
           </div>
 
-          {/* Microservices List */}
+          {/* Services Checklist */}
           <div className="space-y-2 mb-6 max-h-48 overflow-y-auto pr-1">
             {Object.entries(serviceNamesMap).map(([key, label]) => {
               const isReady = servicesStatus[key] === 'WARMED_UP';
               return (
                 <div
                   key={key}
-                  className="flex items-center justify-between py-1.5 px-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-100 dark:border-zinc-800/60 text-xs"
+                  className="flex items-center justify-between py-2 px-3 rounded-lg bg-white/80 dark:bg-slate/40 border border-border/60 text-xs shadow-2xs"
                 >
-                  <span className="flex items-center space-x-2">
-                    <Server className="w-3.5 h-3.5 text-zinc-400" />
+                  <span className="flex items-center space-x-2 text-slate dark:text-cream/90 font-medium">
+                    <Server className="w-3.5 h-3.5 text-tactical/80" />
                     <span>{label}</span>
                   </span>
                   {isReady ? (
-                    <span className="flex items-center space-x-1 text-emerald-500 font-medium">
+                    <span className="flex items-center space-x-1 text-tactical font-semibold">
                       <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>Готово</span>
+                      <span className="font-mono text-[11px]">READY</span>
                     </span>
                   ) : (
-                    <span className="flex items-center space-x-1 text-amber-500 font-medium animate-pulse">
+                    <span className="flex items-center space-x-1 text-amber font-semibold animate-pulse">
                       <Activity className="w-3.5 h-3.5" />
-                      <span>Очікування</span>
+                      <span className="font-mono text-[11px]">WARMING</span>
                     </span>
                   )}
                 </div>
@@ -174,14 +180,14 @@ export const SystemWarmupModal: React.FC = () => {
           </div>
 
           {/* Footer Note */}
-          <div className="text-center">
+          <div className="text-center pt-1 border-t border-border/40">
             {isWarmingUp ? (
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                Зачекайте кілька секунд. Модальне вікно закриється автоматично.
+              <p className="text-xs text-slate/60 dark:text-cream/60 font-mono">
+                Initializing services... This modal will close automatically.
               </p>
             ) : (
-              <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                Ласкаво просимо до MilHub!
+              <p className="text-xs font-bold text-tactical font-mono tracking-wide uppercase">
+                ✓ MilHub Platform Online
               </p>
             )}
           </div>
