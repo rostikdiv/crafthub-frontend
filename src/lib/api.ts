@@ -1,7 +1,18 @@
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1';
+const getSanitizedApiUrl = (): string => {
+  let url = (import.meta.env.VITE_API_URL || '').trim();
+  if (!url) {
+    return 'https://milhub-api-gateway-258044247462.us-central1.run.app/api/v1';
+  }
+  if (!/^https?:\/\//i.test(url)) {
+    url = `https://${url}`;
+  }
+  return url.endsWith('/') ? url.slice(0, -1) : url;
+};
+
+const API_BASE_URL = getSanitizedApiUrl();
 
 export const api = axios.create({
   baseURL: API_BASE_URL,

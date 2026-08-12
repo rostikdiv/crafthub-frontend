@@ -8,7 +8,18 @@ interface SystemStatusResponse {
   services?: Record<string, string>;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://milhub-api-gateway-258044247462.us-central1.run.app/api/v1';
+const getSanitizedApiUrl = (): string => {
+  let url = (import.meta.env.VITE_API_URL || '').trim();
+  if (!url) {
+    return 'https://milhub-api-gateway-258044247462.us-central1.run.app/api/v1';
+  }
+  if (!/^https?:\/\//i.test(url)) {
+    url = `https://${url}`;
+  }
+  return url.endsWith('/') ? url.slice(0, -1) : url;
+};
+
+const API_BASE_URL = getSanitizedApiUrl();
 
 // Extract root Gateway URL (without /api/v1) for liveness probe
 const GATEWAY_ROOT_URL = API_BASE_URL.replace(/\/api\/v1\/?$/, '');
