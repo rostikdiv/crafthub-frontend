@@ -21,6 +21,7 @@ import { ViewDocument } from './pages/ViewDocument';
 import { MilitaryDashboardPage } from './pages/MilitaryDashboardPage';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
+import { SystemWarmupModal } from './components/common/SystemWarmupModal';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 function AnimatedRoutes() {
@@ -102,6 +103,7 @@ export function App() {
         <AuthProvider>
           <ToastProvider>
             <CartProvider>
+              <SystemWarmupModal />
               <div className="min-h-screen flex flex-col bg-cream">
                 <Navbar />
                 <main className="flex-1">
