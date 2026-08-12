@@ -8,15 +8,30 @@ interface SystemStatusResponse {
   services?: Record<string, string>;
 }
 
+const DEFAULT_GATEWAY_URL = 'https://milhub-api-gateway-258044247462.us-central1.run.app/api/v1';
+
 const getSanitizedApiUrl = (): string => {
-  let url = (import.meta.env.VITE_API_URL || '').trim();
-  if (!url) {
-    return 'https://milhub-api-gateway-258044247462.us-central1.run.app/api/v1';
+  const raw = import.meta.env.VITE_API_URL;
+  if (typeof raw !== 'string') return DEFAULT_GATEWAY_URL;
+
+  let url = raw.trim().replace(/^["']|["']$/g, '');
+  if (!url || url === 'undefined' || url === 'null') {
+    return DEFAULT_GATEWAY_URL;
   }
+
   if (!/^https?:\/\//i.test(url)) {
     url = `https://${url}`;
   }
-  return url.endsWith('/') ? url.slice(0, -1) : url;
+
+  try {
+    const parsed = new URL(url);
+    if (!parsed.hostname || parsed.hostname === 'undefined') {
+      return DEFAULT_GATEWAY_URL;
+    }
+    return parsed.href.endsWith('/') ? parsed.href.slice(0, -1) : parsed.href;
+  } catch (e) {
+    return DEFAULT_GATEWAY_URL;
+  }
 };
 
 const API_BASE_URL = getSanitizedApiUrl();
