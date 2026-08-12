@@ -10,6 +10,9 @@ interface SystemStatusResponse {
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://milhub-api-gateway-258044247462.us-central1.run.app/api/v1';
 
+// Extract root Gateway URL (without /api/v1) for liveness probe
+const GATEWAY_ROOT_URL = API_BASE_URL.replace(/\/api\/v1\/?$/, '');
+
 export const SystemWarmupModal: React.FC = () => {
   const [isVisible, setIsVisible] = useState<boolean>(true);
   const [isWarmingUp, setIsWarmingUp] = useState<boolean>(true);
@@ -29,31 +32,43 @@ export const SystemWarmupModal: React.FC = () => {
 
   useEffect(() => {
     let timerId: NodeJS.Timeout;
+    let isMounted = true;
 
     const checkSystemWarmup = async () => {
+      if (!isMounted) return;
+      setAttemptCount((prev) => prev + 1);
+
+      // Phase 1: Ping API Gateway Liveness Probe first to ensure Gateway is awake
       try {
-        setAttemptCount((prev) => prev + 1);
-        const response = await axios.get<SystemStatusResponse>(`${API_BASE_URL}/system/warmup`, {
-          timeout: 10000,
+        const gatewayCheck = await axios.get(`${GATEWAY_ROOT_URL}/actuator/health/liveness`, {
+          timeout: 5000,
         });
 
-        if (response.data) {
+        if (gatewayCheck.status === 200) {
           setGatewayStatus('CONNECTED');
-          if (response.data.services) {
-            setServicesStatus(response.data.services);
-          }
 
-          if (response.data.status === 'UP') {
-            setIsWarmingUp(false);
-            // Hide modal smoothly after 1.5s
-            timerId = setTimeout(() => {
-              setIsVisible(false);
-            }, 1500);
-            return;
+          // Phase 2: Now query Gateway Warmup Endpoint to warm up and verify all downstream microservices
+          const warmupResponse = await axios.get<SystemStatusResponse>(`${API_BASE_URL}/system/warmup`, {
+            timeout: 12000,
+          });
+
+          if (warmupResponse.data) {
+            if (warmupResponse.data.services) {
+              setServicesStatus(warmupResponse.data.services);
+            }
+
+            if (warmupResponse.data.status === 'UP') {
+              setIsWarmingUp(false);
+              // Hide modal smoothly after 1.5s once all services are ready
+              timerId = setTimeout(() => {
+                if (isMounted) setIsVisible(false);
+              }, 1500);
+              return;
+            }
           }
         }
       } catch (error) {
-        console.warn('Backend warmup check pending...', error);
+        console.warn('API Gateway Liveness or microservice warmup pending...', error);
         setGatewayStatus('CONNECTING');
       }
 
@@ -64,6 +79,7 @@ export const SystemWarmupModal: React.FC = () => {
     checkSystemWarmup();
 
     return () => {
+      isMounted = false;
       if (timerId) clearTimeout(timerId);
     };
   }, []);
