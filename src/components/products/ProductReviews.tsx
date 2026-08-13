@@ -11,6 +11,111 @@ interface ProductReviewsProps {
     initialReviews?: Review[];
 }
 
+interface ReviewItemProps {
+    review: Review;
+    depth?: number;
+    replyingToId: string | null;
+    setReplyingToId: (id: string | null) => void;
+    isAuthenticated: boolean;
+    onSubmitReply: (parentId: string, text: string) => Promise<void>;
+}
+
+function ReviewItem({ review, depth = 0, replyingToId, setReplyingToId, isAuthenticated, onSubmitReply }: ReviewItemProps) {
+    const isReplying = replyingToId === review.id;
+    const [localReplyComment, setLocalReplyComment] = useState('');
+
+    const handleFormSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!localReplyComment.trim()) return;
+        await onSubmitReply(review.id, localReplyComment);
+        setLocalReplyComment('');
+    };
+
+    return (
+        <div className={`bg-white border border-border p-6 rounded-sm ${depth > 0 ? 'ml-8 mt-4 border-l-4 border-l-tactical/20' : ''}`}>
+            <div className="flex justify-between items-start mb-4">
+                <div>
+                    <div className="flex items-center gap-2 mb-1">
+                        <span className="font-bold text-slate uppercase text-sm">{review.userName}</span>
+                        {review.isVerifiedPurchase && (
+                            <span className="flex items-center text-[10px] text-green-600 font-bold uppercase tracking-wider gap-1">
+                                <ShieldCheckIcon className="w-3 h-3" />
+                                Verified
+                            </span>
+                        )}
+                    </div>
+                    {review.rating && (
+                        <div className="flex text-amber-500 mb-1">
+                            {[...Array(5)].map((_, i) => (
+                                <StarIcon
+                                    key={i}
+                                    className={`w-3 h-3 ${i < (review.rating || 0) ? 'fill-current' : 'text-gray-200'}`}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </div>
+                <span className="text-[10px] text-gray-400 font-mono">{review.date}</span>
+            </div>
+
+            <p className="text-gray-700 leading-relaxed text-sm mb-4">{review.comment}</p>
+
+            {/* Reply Button */}
+            {isAuthenticated && depth < 3 && (
+                <button
+                    onClick={() => setReplyingToId(isReplying ? null : review.id)}
+                    className="text-xs font-bold uppercase text-gray-400 hover:text-tactical flex items-center gap-1 transition-colors"
+                >
+                    <MessageSquareIcon className="w-3 h-3" />
+                    {isReplying ? 'Cancel Reply' : 'Reply'}
+                </button>
+            )}
+
+            {/* Reply Form */}
+            {isReplying && (
+                <div className="mt-4 pl-4 border-l-2 border-gray-200 animate-in fade-in slide-in-from-top-2">
+                    <form onSubmit={handleFormSubmit}>
+                        <textarea
+                            value={localReplyComment}
+                            onChange={(e) => setLocalReplyComment(e.target.value)}
+                            className="w-full h-24 p-2 text-sm bg-gray-50 border border-gray-200 rounded-sm focus:outline-none focus:border-tactical resize-none mb-2"
+                            placeholder={`Reply to ${review.userName}...`}
+                            autoFocus
+                        />
+                        <div className="flex justify-end gap-2">
+                            <Button
+                                size="sm"
+                                type="submit"
+                                disabled={!localReplyComment.trim()}
+                                className="flex items-center gap-2"
+                            >
+                                Submit Reply <ArrowRightIcon className="w-3 h-3" />
+                            </Button>
+                        </div>
+                    </form>
+                </div>
+            )}
+
+            {/* Nested Replies */}
+            {review.replies && review.replies.length > 0 && (
+                <div className="mt-4 border-t border-gray-100 pt-4">
+                    {review.replies.map(reply => (
+                        <ReviewItem
+                            key={reply.id}
+                            review={reply}
+                            depth={depth + 1}
+                            replyingToId={replyingToId}
+                            setReplyingToId={setReplyingToId}
+                            isAuthenticated={isAuthenticated}
+                            onSubmitReply={onSubmitReply}
+                        />
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
 export function ProductReviews({ productId }: ProductReviewsProps) {
     const { user, isAuthenticated } = useAuth();
     const { success, error: showError } = useToast();
@@ -20,7 +125,6 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
     const [comment, setComment] = useState('');
     const [hoverRating, setHoverRating] = useState(0);
     const [replyingToId, setReplyingToId] = useState<string | null>(null);
-    const [replyComment, setReplyComment] = useState('');
 
     const mapReview = (r: any): Review => ({
         id: r.id,
@@ -55,31 +159,20 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
         }
     }, [productId]);
 
-    const handleSubmit = async (e: React.FormEvent, parentId?: string) => {
+    const handleSubmitMain = async (e: React.FormEvent) => {
         e.preventDefault();
-
-        // Validation: Main review needs rating, reply does not (backend model allows null rating for replies)
-        if (!parentId && rating === 0) return;
-
-        const content = parentId ? replyComment : comment;
-        if (!content.trim()) return;
+        if (rating === 0 || !comment.trim()) return;
 
         try {
             await api.post('/reviews', {
                 productId,
-                rating: parentId ? null : rating, // Parent review needs rating
-                comment: content,
-                parentId: parentId || null
+                rating,
+                comment,
+                parentId: null
             });
             success('Field report submitted successfully.');
-
-            if (parentId) {
-                setReplyComment('');
-                setReplyingToId(null);
-            } else {
-                setComment('');
-                setRating(0);
-            }
+            setComment('');
+            setRating(0);
             fetchReviews();
         } catch (err: any) {
             console.error('Submit review failed', err);
@@ -91,84 +184,25 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
         }
     };
 
-    const RecursiveReview = ({ review, depth = 0 }: { review: Review, depth?: number }) => {
-        const isReplying = replyingToId === review.id;
-
-        return (
-            <div className={`bg-white border border-border p-6 rounded-sm ${depth > 0 ? 'ml-8 mt-4 border-l-4 border-l-tactical/20' : ''}`}>
-                <div className="flex justify-between items-start mb-4">
-                    <div>
-                        <div className="flex items-center gap-2 mb-1">
-                            <span className="font-bold text-slate uppercase text-sm">{review.userName}</span>
-                            {review.isVerifiedPurchase && (
-                                <span className="flex items-center text-[10px] text-green-600 font-bold uppercase tracking-wider gap-1">
-                                    <ShieldCheckIcon className="w-3 h-3" />
-                                    Verified
-                                </span>
-                            )}
-                        </div>
-                        {review.rating && (
-                            <div className="flex text-amber-500 mb-1">
-                                {[...Array(5)].map((_, i) => (
-                                    <StarIcon
-                                        key={i}
-                                        className={`w-3 h-3 ${i < (review.rating || 0) ? 'fill-current' : 'text-gray-200'}`}
-                                    />
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                    <span className="text-[10px] text-gray-400 font-mono">{review.date}</span>
-                </div>
-
-                <p className="text-gray-700 leading-relaxed text-sm mb-4">{review.comment}</p>
-
-                {/* Reply Button */}
-                {isAuthenticated && depth < 3 && (
-                    <button
-                        onClick={() => setReplyingToId(isReplying ? null : review.id)}
-                        className="text-xs font-bold uppercase text-gray-400 hover:text-tactical flex items-center gap-1 transition-colors"
-                    >
-                        <MessageSquareIcon className="w-3 h-3" />
-                        {isReplying ? 'Cancel Reply' : 'Reply'}
-                    </button>
-                )}
-
-                {/* Reply Form */}
-                {isReplying && (
-                    <div className="mt-4 pl-4 border-l-2 border-gray-200 animate-in fade-in slide-in-from-top-2">
-                        <form onSubmit={(e) => handleSubmit(e, review.id)}>
-                            <textarea
-                                value={replyComment}
-                                onChange={(e) => setReplyComment(e.target.value)}
-                                className="w-full h-24 p-2 text-sm bg-gray-50 border border-gray-200 rounded-sm focus:outline-none focus:border-tactical resize-none mb-2"
-                                placeholder={`Reply to ${review.userName}...`}
-                                autoFocus
-                            />
-                            <div className="flex justify-end gap-2">
-                                <Button
-                                    size="sm"
-                                    type="submit"
-                                    disabled={!replyComment.trim()}
-                                    className="flex items-center gap-2"
-                                >
-                                    Submit Reply <ArrowRightIcon className="w-3 h-3" />
-                                </Button>
-                            </div>
-                        </form>
-                    </div>
-                )}
-
-                {/* Nested Replies */}
-                {review.replies && review.replies.length > 0 && (
-                    <div className="mt-4 border-t border-gray-100 pt-4">
-                        {review.replies.map(reply => (
-                            <RecursiveReview key={reply.id} review={reply} depth={depth + 1} />
-                        ))}
-                    </div>
-                )}
-            </div>
-        );
+    const handleReplySubmit = async (parentId: string, text: string) => {
+        try {
+            await api.post('/reviews', {
+                productId,
+                rating: null,
+                comment: text,
+                parentId
+            });
+            success('Reply submitted successfully.');
+            setReplyingToId(null);
+            fetchReviews();
+        } catch (err: any) {
+            console.error('Submit reply failed', err);
+            if (err.response?.status === 403) {
+                showError('Access Denied: You must purchase this item to verify specs.');
+            } else {
+                showError('Failed to submit reply.');
+            }
+        }
     };
 
     return (
@@ -188,7 +222,14 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
                         <p className="text-gray-500 italic">No field reports filed yet.</p>
                     ) : (
                         reviews.map((review) => (
-                            <RecursiveReview key={review.id} review={review} />
+                            <ReviewItem
+                                key={review.id}
+                                review={review}
+                                replyingToId={replyingToId}
+                                setReplyingToId={setReplyingToId}
+                                isAuthenticated={isAuthenticated}
+                                onSubmitReply={handleReplySubmit}
+                            />
                         ))
                     )}
                 </div>
@@ -210,7 +251,7 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
                                 </Button>
                             </div>
                         ) : (
-                            <form onSubmit={(e) => handleSubmit(e)} className="space-y-4">
+                            <form onSubmit={handleSubmitMain} className="space-y-4">
                                 <div>
                                     <label className="block text-xs font-bold uppercase text-gray-500 mb-2">
                                         Rating
