@@ -9,6 +9,7 @@ import { Order } from '../../lib/types';
 import { useToast } from '../../lib/toastContext';
 import { formatPrice } from '../../lib/productUtils';
 import { fixImageUrl } from '../../lib/imageUtils';
+import { formatDateTime } from '../../lib/dateUtils';
 
 type OrderDetailsModalProps = {
     isOpen: boolean;
@@ -196,7 +197,7 @@ export function OrderDetailsModal({ isOpen, onClose, orderId }: OrderDetailsModa
                                     <div className="text-right">
                                         <p className="text-xs text-gray-400 uppercase font-bold">Placed On</p>
                                         <p className="text-sm font-mono text-slate">
-                                            {new Date(order.createdAt).toLocaleDateString()}
+                                            {formatDateTime(order.createdAt)}
                                         </p>
                                     </div>
                                 </div>

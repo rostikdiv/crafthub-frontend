@@ -7,6 +7,7 @@ import { api } from '../../lib/api';
 import { OrderDetailsModal } from './OrderDetailsModal';
 import { formatPrice } from '../../lib/productUtils';
 import { fixImageUrl } from '../../lib/imageUtils';
+import { formatDateTime } from '../../lib/dateUtils';
 
 import { Order, OrderStatus } from '../../lib/types';
 
@@ -90,16 +91,6 @@ export function OrdersView() {
     fetchOrders();
   }, [page]);
 
-  const formatDate = (dateString: string | number[]) => {
-    if (!dateString) return 'N/A';
-    if (Array.isArray(dateString)) {
-      // Handle [year, month, day, hour, minute, second]
-      const [year, month, day, hour, minute] = dateString;
-      return new Date(year, month - 1, day, hour, minute).toLocaleString();
-    }
-    return new Date(dateString).toLocaleString();
-  };
-
   if (loading) {
     return (
       <div className="flex justify-center py-12">
@@ -152,7 +143,7 @@ export function OrdersView() {
                     <div className="flex items-center gap-4 text-xs text-gray-500 mt-1">
                       <span className="flex items-center gap-1">
                         <ClockIcon className="w-3 h-3" />
-                        {formatDate(order.createdAt)}
+                        {formatDateTime(order.createdAt)}
                       </span>
                       {order.deliveryInfo && (
                         <span className="flex items-center gap-1">
