@@ -36,7 +36,6 @@ export function ProductDetailPage() {
   useEffect(() => {
     const fetchProductAndSeller = async () => {
       if (!id) return;
-      setLoading(true);
       try {
         const { data: rawData } = await api.get<any>(`/products/${id}`);
 
@@ -61,12 +60,12 @@ export function ProductDetailPage() {
           inStock: (rawData.quantity || 0) > 0,
           stockCount: rawData.quantity || 0,
           isNew: false,
-          onClearance: false,
+          onClearance: rawData.oldPrice != null,
           itemNumber: rawData.id.substring(0, 8).toUpperCase(),
           imageUrl: rawData.previewImageUrl,
           imageUrls: rawData.imageUrls || [],
-          rating: rawData.averageRating || 0,
-          reviewCount: rawData.reviewCount || 0
+          rating: rawData.averageRating != null ? rawData.averageRating : (rawData.rating != null ? rawData.rating : 0),
+          reviewCount: rawData.reviewCount != null ? rawData.reviewCount : 0
         };
 
         setProduct(mappedProduct);
@@ -216,7 +215,15 @@ export function ProductDetailPage() {
               {product.name}
             </h1>
 
-
+            {/* Rating */}
+            <div className="flex items-center gap-2 mb-4">
+              <div className="flex text-amber-500 text-sm">
+                {'★'.repeat(Math.round(product.rating || 0))}
+                <span className="text-gray-300">{'★'.repeat(5 - Math.round(product.rating || 0))}</span>
+              </div>
+              <span className="text-sm font-bold text-slate">{Number(product.rating || 0).toFixed(1)}</span>
+              <span className="text-xs text-gray-400 font-mono">({product.reviewCount || 0} reviews)</span>
+            </div>
 
             {/* Badges */}
             <div className="flex flex-wrap gap-2 mb-6">
@@ -387,7 +394,7 @@ export function ProductDetailPage() {
         </div>
 
         {/* Product Reviews */}
-        <ProductReviews productId={product.id} />
+        <ProductReviews productId={product.id} onReviewsUpdated={fetchProductAndSeller} />
 
         {/* Related Products */}
         {relatedProducts.length > 0 &&

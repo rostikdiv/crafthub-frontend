@@ -9,6 +9,7 @@ import { api } from '../../lib/api';
 interface ProductReviewsProps {
     productId: string;
     initialReviews?: Review[];
+    onReviewsUpdated?: () => void;
 }
 
 interface ReviewItemProps {
@@ -116,7 +117,7 @@ function ReviewItem({ review, depth = 0, replyingToId, setReplyingToId, isAuthen
     );
 }
 
-export function ProductReviews({ productId }: ProductReviewsProps) {
+export function ProductReviews({ productId, onReviewsUpdated }: ProductReviewsProps) {
     const { user, isAuthenticated } = useAuth();
     const { success, error: showError } = useToast();
     const [reviews, setReviews] = useState<Review[]>([]);
@@ -174,6 +175,9 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
             setComment('');
             setRating(0);
             fetchReviews();
+            if (onReviewsUpdated) {
+                onReviewsUpdated();
+            }
         } catch (err: any) {
             console.error('Submit review failed', err);
             if (err.response?.status === 403) {
@@ -195,6 +199,9 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
             success('Reply submitted successfully.');
             setReplyingToId(null);
             fetchReviews();
+            if (onReviewsUpdated) {
+                onReviewsUpdated();
+            }
         } catch (err: any) {
             console.error('Submit reply failed', err);
             if (err.response?.status === 403) {
