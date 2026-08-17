@@ -42,6 +42,8 @@ export function VerificationDetailModal({
     const [userDetails, setUserDetails] = useState<any>(null);
     const [loadingDetails, setLoadingDetails] = useState(false);
 
+    const [previewType, setPreviewType] = useState<'pdf' | 'image' | 'word' | 'other'>('image');
+
     // Fetch document blob for preview
     useEffect(() => {
         const currentDoc = docs[selectedDocIndex];
@@ -56,6 +58,24 @@ export function VerificationDetailModal({
                 const response = await api.get(`/documents/${currentDoc.id}`, {
                     responseType: 'blob'
                 });
+                const mimeType = (response.headers['content-type'] || response.data?.type || '').toLowerCase();
+                const urlLower = (currentDoc.docUrl || '').toLowerCase();
+
+                let detectedType: 'pdf' | 'image' | 'word' | 'other' = 'image';
+                if (mimeType.includes('pdf') || urlLower.endsWith('.pdf')) {
+                    detectedType = 'pdf';
+                } else if (
+                    mimeType.includes('word') ||
+                    mimeType.includes('officedocument') ||
+                    urlLower.endsWith('.docx') ||
+                    urlLower.endsWith('.doc')
+                ) {
+                    detectedType = 'word';
+                } else if (mimeType.includes('image') || urlLower.endsWith('.jpg') || urlLower.endsWith('.jpeg') || urlLower.endsWith('.png') || urlLower.endsWith('.webp')) {
+                    detectedType = 'image';
+                }
+
+                setPreviewType(detectedType);
                 activeUrl = URL.createObjectURL(response.data);
                 setPreviewUrl(activeUrl);
             } catch (err) {
@@ -138,6 +158,16 @@ export function VerificationDetailModal({
         }
     };
 
+    const getDocTypeTitle = (type: string) => {
+        switch (type) {
+            case 'MILITARY_ID': return 'MILITARY ID';
+            case 'REGISTRATION_CERT': return 'REGISTRATION CERT';
+            case 'LICENSE': return 'LICENSE';
+            case 'UNIT_ORDER': return 'UNIT ORDER';
+            default: return 'PASSPORT / ID';
+        }
+    };
+
     if (!request) return null;
 
     const currentDoc = docs[selectedDocIndex];
@@ -188,25 +218,47 @@ export function VerificationDetailModal({
                                         onClick={() => setSelectedDocIndex(i)}
                                         className={`px-3 py-1.5 text-xs font-bold uppercase border rounded-sm whitespace-nowrap transition-colors ${statusColors}`}
                                     >
-                                        {doc.documentType === 'MILITARY_ID' ? 'MILITARY ID' : 'PASSPORT / ID'}
+                                        {getDocTypeTitle(doc.documentType)}
                                     </button>
                                 );
                             })}
                         </div>
 
                         {/* Preview Area */}
-                        <div className="flex-1 bg-gray-200/50 flex items-center justify-center p-8 overflow-auto relative">
+                        <div className="flex-1 bg-gray-200/50 flex items-center justify-center p-4 overflow-auto relative">
                             {currentDoc ? (
-                                <div className="relative shadow-lg max-w-full max-h-full flex flex-col items-center">
-                                    {/* Always render as image for proxy URLs */}
+                                <div className="w-full h-full flex flex-col items-center justify-center">
                                     {previewUrl ? (
-                                        <div className="relative w-full h-full flex flex-col items-center justify-center">
+                                        previewType === 'pdf' ? (
+                                            <iframe
+                                                src={previewUrl}
+                                                className="w-full h-full min-h-[450px] border border-gray-300 shadow-sm bg-white rounded-sm"
+                                                title="PDF Document Preview"
+                                            />
+                                        ) : previewType === 'word' ? (
+                                            <div className="bg-white border border-gray-300 p-8 flex flex-col items-center justify-center gap-4 min-w-[320px] shadow-sm rounded-sm">
+                                                <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center">
+                                                    <FileTextIcon className="w-8 h-8 text-blue-600" />
+                                                </div>
+                                                <div className="text-center">
+                                                    <p className="font-bold text-slate text-sm uppercase">{getDocTypeTitle(currentDoc.documentType)}</p>
+                                                    <p className="text-xs text-gray-500 mt-1">Microsoft Word Document (.docx / .doc)</p>
+                                                </div>
+                                                <a
+                                                    href={previewUrl}
+                                                    download={`doc_${currentDoc.id}.docx`}
+                                                    className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-sm shadow-sm transition-colors"
+                                                >
+                                                    <DownloadIcon className="w-4 h-4" /> Download & Inspect Document
+                                                </a>
+                                            </div>
+                                        ) : (
                                             <img
                                                 src={previewUrl}
                                                 alt="Document Preview"
-                                                className="max-w-full max-h-full object-contain bg-white border border-gray-300 shadow-sm"
+                                                className="max-w-full max-h-full object-contain bg-white border border-gray-300 shadow-sm rounded-sm"
                                             />
-                                        </div>
+                                        )
                                     ) : (
                                         <div className="bg-white border border-gray-300 p-12 flex flex-col items-center justify-center gap-4 min-w-[300px] min-h-[400px]">
                                             <FileTextIcon className="w-16 h-16 text-gray-300" />

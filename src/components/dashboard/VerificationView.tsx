@@ -212,7 +212,7 @@ export function VerificationView({ onNavigateTab }: VerificationViewProps) {
                                 Step 2: Submit Verification Documents
                             </h3>
                             <p className="text-xs text-gray-500 mt-0.5">
-                                Upload required documents for administrator verification. Accepted formats: PDF, JPG, PNG.
+                                Upload required documents for administrator verification. Accepted formats: PDF, DOCX, DOC, JPG, PNG (up to 10MB).
                             </p>
                         </div>
 
@@ -228,7 +228,7 @@ export function VerificationView({ onNavigateTab }: VerificationViewProps) {
                                         <div>
                                             <h3 className="font-bold text-slate">Military ID / Service Order</h3>
                                             <p className="text-xs text-gray-500 mt-1">
-                                                Officer certificate or unit appointment order (matching Unit #{user?.militaryProfile?.unitNumber || ''})
+                                                Officer certificate, military ID, or official unit order (PDF, DOCX, JPG, PNG)
                                             </p>
                                         </div>
                                         <div className="w-full">
@@ -236,7 +236,7 @@ export function VerificationView({ onNavigateTab }: VerificationViewProps) {
                                                 type="file"
                                                 id="upload-military"
                                                 className="hidden"
-                                                accept=".pdf,.jpg,.jpeg,.png"
+                                                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
                                                 onChange={(e) => handleFileUpload(e, 'MILITARY_ID')}
                                                 disabled={uploading}
                                             />
@@ -269,7 +269,7 @@ export function VerificationView({ onNavigateTab }: VerificationViewProps) {
                                                 type="file"
                                                 id="upload-passport"
                                                 className="hidden"
-                                                accept=".pdf,.jpg,.jpeg,.png"
+                                                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
                                                 onChange={(e) => handleFileUpload(e, 'PASSPORT')}
                                                 disabled={uploading}
                                             />
@@ -307,7 +307,7 @@ export function VerificationView({ onNavigateTab }: VerificationViewProps) {
                                                 type="file"
                                                 id="upload-reg-cert"
                                                 className="hidden"
-                                                accept=".pdf,.jpg,.jpeg,.png"
+                                                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
                                                 onChange={(e) => handleFileUpload(e, 'REGISTRATION_CERT')}
                                                 disabled={uploading}
                                             />
@@ -340,7 +340,7 @@ export function VerificationView({ onNavigateTab }: VerificationViewProps) {
                                                 type="file"
                                                 id="upload-seller-passport"
                                                 className="hidden"
-                                                accept=".pdf,.jpg,.jpeg,.png"
+                                                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
                                                 onChange={(e) => handleFileUpload(e, 'PASSPORT')}
                                                 disabled={uploading}
                                             />
