@@ -8,6 +8,7 @@ import { api, orderActionsApi } from '../../lib/api';
 import { Order } from '../../lib/types';
 import { useToast } from '../../lib/toastContext';
 import { formatPrice } from '../../lib/productUtils';
+import { fixImageUrl } from '../../lib/imageUtils';
 
 type OrderDetailsModalProps = {
     isOpen: boolean;
@@ -24,12 +25,14 @@ export function OrderDetailsModal({ isOpen, onClose, orderId }: OrderDetailsModa
     const [order, setOrder] = useState<OrderDetail | null>(null);
     const [loading, setLoading] = useState(false);
     const [processingAction, setProcessingAction] = useState(false);
+    const [productDetailsMap, setProductDetailsMap] = useState<Record<string, { name?: string; imageUrl?: string }>>({});
 
     useEffect(() => {
         if (isOpen && orderId) {
             fetchOrderDetails(orderId);
         } else {
             setOrder(null);
+            setProductDetailsMap({});
         }
     }, [isOpen, orderId]);
 
@@ -52,6 +55,36 @@ export function OrderDetailsModal({ isOpen, onClose, orderId }: OrderDetailsModa
                     ...orderData,
                     paymentStatus
                 });
+
+                // Fetch product information (image & name) for items in parallel
+                if (orderData.items && Array.isArray(orderData.items) && orderData.items.length > 0) {
+                    const productIds = Array.from(
+                        new Set(orderData.items.map((i: any) => i.productId).filter(Boolean))
+                    ) as string[];
+
+                    const productResults = await Promise.allSettled(
+                        productIds.map(async (pId) => {
+                            const res = await api.get(`/products/${pId}`);
+                            const p = res.data;
+                            return {
+                                id: pId,
+                                name: p.name,
+                                imageUrl: p.previewImageUrl || p.imageUrl || (p.imageUrls && p.imageUrls[0]) || ''
+                            };
+                        })
+                    );
+
+                    const newMap: Record<string, { name?: string; imageUrl?: string }> = {};
+                    productResults.forEach((entry) => {
+                        if (entry.status === 'fulfilled' && entry.value) {
+                            newMap[entry.value.id] = {
+                                name: entry.value.name,
+                                imageUrl: entry.value.imageUrl
+                            };
+                        }
+                    });
+                    setProductDetailsMap(newMap);
+                }
             } else {
                 console.error('Failed to fetch order details:', orderRes.reason);
                 setOrder(null);
@@ -175,33 +208,50 @@ export function OrderDetailsModal({ isOpen, onClose, orderId }: OrderDetailsModa
                                         <p className="text-xs font-bold uppercase text-gray-500">Manifest</p>
                                     </div>
                                     <div className="divide-y divide-gray-100">
-                                        {order.items?.map((item, idx) => (
-                                            <div key={idx} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                                <div className="flex items-center gap-3 min-w-0">
-                                                    <div className="w-10 h-10 bg-white border border-gray-200 rounded-sm flex items-center justify-center font-bold text-gray-400 text-xs shrink-0">
-                                                        <PackageIcon className="w-5 h-5 text-gray-400" />
+                                        {order.items?.map((item, idx) => {
+                                            const details = productDetailsMap[item.productId];
+                                            const imgUrl = (item as any).imageUrl || details?.imageUrl;
+                                            const displayName = item.name || details?.name || `Product #${item.productId.substring(0, 8)}`;
+
+                                            return (
+                                                <div key={idx} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                                    <div className="flex items-center gap-3 min-w-0">
+                                                        <div className="w-14 h-14 bg-gray-100 border border-gray-200 rounded-sm flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                                            {imgUrl ? (
+                                                                <img
+                                                                    src={fixImageUrl(imgUrl)}
+                                                                    alt={displayName}
+                                                                    className="w-full h-full object-cover"
+                                                                    onError={(e) => {
+                                                                        (e.target as HTMLElement).style.display = 'none';
+                                                                    }}
+                                                                />
+                                                            ) : (
+                                                                <PackageIcon className="w-6 h-6 text-gray-400" />
+                                                            )}
+                                                        </div>
+                                                        <div className="min-w-0">
+                                                            <Link
+                                                                to={`/products/${item.productId}`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="font-bold text-slate text-sm uppercase tracking-tight hover:text-tactical transition-colors flex items-center gap-1.5 line-clamp-1"
+                                                            >
+                                                                {displayName}
+                                                                <ExternalLinkIcon className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                                                            </Link>
+                                                            <p className="text-[10px] font-mono text-gray-400 mt-0.5">ID: {item.productId.substring(0, 8)}... • Unit: {formatPrice(item.pricePerUnit)}</p>
+                                                        </div>
                                                     </div>
-                                                    <div className="min-w-0">
-                                                        <Link
-                                                            to={`/products/${item.productId}`}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="font-bold text-slate text-sm uppercase tracking-tight hover:text-tactical transition-colors flex items-center gap-1.5 line-clamp-1"
-                                                        >
-                                                            {item.name || `Product #${item.productId.substring(0, 8)}`}
-                                                            <ExternalLinkIcon className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                                                        </Link>
-                                                        <p className="text-[10px] font-mono text-gray-400 mt-0.5">ID: {item.productId.substring(0, 8)}... • Unit: {formatPrice(item.pricePerUnit)}</p>
+                                                    <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0 border-gray-100">
+                                                        <p className="text-xs font-mono font-bold text-slate">× {item.quantity}</p>
+                                                        <p className="text-sm font-bold text-tactical font-mono">
+                                                            {formatPrice(item.pricePerUnit * item.quantity)}
+                                                        </p>
                                                     </div>
                                                 </div>
-                                                <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0 border-gray-100">
-                                                    <p className="text-xs font-mono font-bold text-slate">× {item.quantity}</p>
-                                                    <p className="text-sm font-bold text-tactical font-mono">
-                                                        {formatPrice(item.pricePerUnit * item.quantity)}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                     <div className="bg-slate/5 px-4 py-3 border-t border-border flex justify-between items-center">
                                         <span className="font-bold text-sm uppercase text-slate">Total</span>
