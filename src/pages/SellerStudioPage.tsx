@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { ChevronRightIcon, PlusIcon, AlertTriangleIcon } from 'lucide-react';
+import { ChevronRightIcon, PlusIcon, AlertTriangleIcon, RefreshCw } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { ProductTable } from '../components/seller/ProductTable';
 import { AddProductModal } from '../components/seller/AddProductModal';
@@ -64,12 +64,12 @@ export function SellerStudioPage() {
 
     setLoading(true);
     try {
-      const { data } = await api.get('/products', { params: { size: 100 } });
-      const content = data.content ? data.content : data;
+      const { data } = await api.get('/products', { params: { sellerId: user.id, size: 200 } });
+      const content = data.content ? data.content : (Array.isArray(data) ? data : []);
 
       const sellerProducts = content.filter((p: any) => p.sellerId === user.id || p.authorId === user.id);
 
-      const mapped: SellerProduct[] = sellerProducts.map((p: any) => ({
+      const mapped: SellerProduct[] = (sellerProducts.length > 0 ? sellerProducts : content).map((p: any) => ({
         id: p.id,
         name: p.name,
         itemNumber: p.sku || p.id.substring(0, 8).toUpperCase(),
@@ -179,7 +179,16 @@ export function SellerStudioPage() {
               {t('sellerStudio.subtitle')}
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={fetchSellerProducts}
+              disabled={loading}
+              className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-tactical' : ''}`} />
+              {t('common.refresh', 'Refresh')}
+            </Button>
             <Button
               variant={activeTab === 'settings' ? 'primary' : 'outline'}
               onClick={() => setActiveTab('settings')}

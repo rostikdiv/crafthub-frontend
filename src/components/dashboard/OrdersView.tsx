@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { PackageIcon, ClockIcon, MapPinIcon, CreditCardIcon, ExternalLinkIcon } from 'lucide-react';
+import { PackageIcon, ClockIcon, MapPinIcon, CreditCardIcon, ExternalLinkIcon, RefreshCw } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { api } from '../../lib/api';
 import { OrderDetailsModal } from './OrderDetailsModal';
@@ -29,75 +29,67 @@ export function OrdersView() {
   const [totalPages, setTotalPages] = useState(1);
   const [productDetailsMap, setProductDetailsMap] = useState<Record<string, { name?: string; imageUrl?: string }>>({});
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      setLoading(true);
-      try {
-        const { data } = await api.get('/orders/my', { params: { page, size: 10 } });
-        const content = data.content ? data.content : data;
-        setTotalPages(data.totalPages || 1);
+  const fetchOrders = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data } = await api.get('/orders/my', { params: { page, size: 10 } });
+      const content = data.content ? data.content : data;
+      setTotalPages(data.totalPages || 1);
 
-        const mappedOrders = content.map((o: any): Order => ({
-          id: o.id,
-          userId: o.userId,
-          sellerId: o.sellerId,
-          createdAt: o.createdAt,
-          totalPrice: o.totalPrice || 0,
-          status: o.status,
-          items: o.items || [],
-          deliveryInfo: o.deliveryInfo,
-          paymentMethod: o.paymentMethod
-        }));
-        setOrders(mappedOrders);
+      const mappedOrders = content.map((o: any): Order => ({
+        id: o.id,
+        userId: o.userId,
+        sellerId: o.sellerId,
+        createdAt: o.createdAt,
+        totalPrice: o.totalPrice || 0,
+        status: o.status,
+        items: o.items || [],
+        deliveryInfo: o.deliveryInfo,
+        paymentMethod: o.paymentMethod
+      }));
+      setOrders(mappedOrders);
 
-        // Fetch product information (image & name) for each unique productId in parallel
-        const productIds = Array.from(
-          new Set(
-            mappedOrders.flatMap((o: Order) => o.items.map((i) => i.productId)).filter(Boolean)
-          )
-        ) as string[];
+      // Fetch product information (image & name) for each unique productId in parallel
+      const productIds = Array.from(
+        new Set(
+          mappedOrders.flatMap((o: Order) => o.items.map((i) => i.productId)).filter(Boolean)
+        )
+      ) as string[];
 
-        if (productIds.length > 0) {
-          const productResults = await Promise.allSettled(
-            productIds.map(async (id) => {
-              const res = await api.get(`/products/${id}`);
-              const p = res.data;
-              return {
-                id,
-                name: p.name,
-                imageUrl: p.previewImageUrl || p.imageUrl || (p.imageUrls && p.imageUrls[0]) || ''
-              };
-            })
-          );
+      if (productIds.length > 0) {
+        const productResults = await Promise.allSettled(
+          productIds.map(async (id) => {
+            const res = await api.get(`/products/${id}`);
+            const p = res.data;
+            return {
+              id,
+              name: p.name,
+              imageUrl: p.previewImageUrl || p.imageUrl || (p.imageUrls && p.imageUrls[0]) || ''
+            };
+          })
+        );
 
-          const newMap: Record<string, { name?: string; imageUrl?: string }> = {};
-          productResults.forEach((entry) => {
-            if (entry.status === 'fulfilled' && entry.value) {
-              newMap[entry.value.id] = {
-                name: entry.value.name,
-                imageUrl: entry.value.imageUrl
-              };
-            }
-          });
-          setProductDetailsMap(newMap);
-        }
-      } catch (error) {
-        console.error('Failed to fetch orders', error);
-      } finally {
-        setLoading(false);
+        const newMap: Record<string, { name?: string; imageUrl?: string }> = {};
+        productResults.forEach((res) => {
+          if (res.status === 'fulfilled') {
+            newMap[res.value.id] = {
+              name: res.value.name,
+              imageUrl: res.value.imageUrl
+            };
+          }
+        });
+        setProductDetailsMap(newMap);
       }
-    };
-
-    fetchOrders();
+    } catch (error) {
+      console.error('Failed to fetch orders', error);
+    } finally {
+      setLoading(false);
+    }
   }, [page]);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-tactical" />
-      </div>
-    );
-  }
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
 
   return (
     <div className="space-y-6">
@@ -105,9 +97,21 @@ export function OrdersView() {
         <h2 className="text-xl font-black uppercase tracking-tight text-slate">
           Requisition History
         </h2>
-        <span className="text-xs font-mono text-gray-500">
-          TOTAL RECORDS: {orders.length}
-        </span>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => fetchOrders()}
+            disabled={loading}
+            className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider h-8"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-tactical' : ''}`} />
+            Refresh
+          </Button>
+          <span className="text-xs font-mono text-gray-500">
+            TOTAL RECORDS: {orders.length}
+          </span>
+        </div>
       </div>
 
       {orders.length === 0 ? (

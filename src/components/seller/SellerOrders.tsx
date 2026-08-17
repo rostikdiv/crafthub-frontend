@@ -7,7 +7,7 @@ import { Button } from '../ui/Button';
 import {
     Package, Clock, Eye, X,
     CheckCircle, XCircle, Truck, MapPin,
-    Phone, User, Printer
+    Phone, User, Printer, RefreshCw
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -88,16 +88,44 @@ export function SellerOrders() {
 
     if (orders.length === 0) {
         return (
-            <div className="text-center py-16 border-2 border-dashed border-gray-200 rounded-lg">
+            <div className="text-center py-16 border-2 border-dashed border-gray-200 rounded-lg bg-white">
                 <Package className="w-12 h-12 mx-auto text-gray-300 mb-4" />
                 <h3 className="text-lg font-medium text-gray-900">No Orders Yet</h3>
-                <p className="text-gray-500 mt-1">When you receive orders, they will appear here to be managed.</p>
+                <p className="text-gray-500 mt-1 mb-4">When you receive orders, they will appear here to be managed.</p>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={fetchOrders}
+                    disabled={loading}
+                    className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider"
+                >
+                    <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-tactical' : ''}`} />
+                    Refresh Orders
+                </Button>
             </div>
         );
     }
 
     return (
         <div className="space-y-6">
+            <div className="flex items-center justify-between">
+                <div>
+                    <h3 className="text-lg font-bold text-slate uppercase tracking-tight">
+                        Store Orders
+                    </h3>
+                    <p className="text-xs text-gray-500">Manage, confirm and track buyer orders.</p>
+                </div>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={fetchOrders}
+                    disabled={loading}
+                    className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider h-8"
+                >
+                    <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-tactical' : ''}`} />
+                    Refresh
+                </Button>
+            </div>
             <div className="overflow-x-auto border border-gray-200 rounded-lg bg-white">
                 <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">

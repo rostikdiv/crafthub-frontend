@@ -63,10 +63,22 @@ export function SellerOrderConfirmation() {
 
     const OrderTable = ({ title, icon: Icon, data, emptyMessage }: any) => (
         <div className="bg-white p-6 rounded-sm border border-border mb-6">
-            <h2 className="text-xl font-bold mb-6 font-mono uppercase tracking-tight text-slate flex items-center gap-2">
-                <Icon className="w-5 h-5 text-tactical" />
-                {title}
-            </h2>
+            <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold font-mono uppercase tracking-tight text-slate flex items-center gap-2">
+                    <Icon className="w-5 h-5 text-tactical" />
+                    {title}
+                </h2>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={fetchOrders}
+                    disabled={loading}
+                    className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider h-8"
+                >
+                    <RefreshCwIcon className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-tactical' : ''}`} />
+                    Refresh
+                </Button>
+            </div>
 
             {loading ? (
                 <div className="text-center py-12 text-gray-500">Loading...</div>
