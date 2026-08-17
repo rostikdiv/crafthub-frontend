@@ -140,7 +140,7 @@ export function Navbar() {
                     <div className="w-8 h-8 rounded-full bg-tactical text-white flex items-center justify-center font-bold text-xs ring-2 ring-transparent hover:ring-tactical/20 transition-all">
                       {user.firstName?.[0] || 'U'}{user.lastName?.[0] || 'N'}
                     </div>
-                    {user.isVerified && (
+                    {user.isVerified && (user.role === 'SELLER' || user.role === 'MILITARY_UNIT') && (
                       <span className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
                     )}
                   </div>
@@ -156,27 +156,18 @@ export function Navbar() {
                     {/* Header */}
                     <div className="px-4 py-3 bg-slate/5 border-b border-slate/10">
                       <p className="text-sm font-bold text-slate">{user.firstName || 'User'} {user.lastName || ''}</p>
-                      {user.isVerified ? (
-                        <p className={`text-xs font-medium flex items-center gap-1 mt-0.5 ${user.role === 'MILITARY_UNIT' ? 'text-green-600' :
-                          user.role === 'SELLER' ? 'text-blue-600' :
-                            user.role === 'ADMIN' ? 'text-purple-600' :
-                              'text-gray-600'
-                          }`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${user.role === 'MILITARY_UNIT' ? 'bg-green-500' :
-                            user.role === 'SELLER' ? 'bg-blue-500' :
-                              user.role === 'ADMIN' ? 'bg-purple-500' :
-                                'bg-gray-500'
-                            }`}></span>
-                          {user.role === 'MILITARY_UNIT' ? t('auth.verifiedMilitary') :
-                            user.role === 'SELLER' ? t('auth.verifiedSeller') :
-                              user.role === 'ADMIN' ? t('auth.adminRole') :
-                                t('auth.verifiedAccount')}
-                        </p>
-                      ) : (
-                        <p className="text-xs text-amber font-medium flex items-center gap-1 mt-0.5">
-                          <span className="w-1.5 h-1.5 bg-amber rounded-full"></span>
-                          {t('auth.unverified')}
-                        </p>
+                      {(user.role === 'SELLER' || user.role === 'MILITARY_UNIT') && (
+                        user.isVerified ? (
+                          <p className={`text-xs font-medium flex items-center gap-1 mt-0.5 ${user.role === 'MILITARY_UNIT' ? 'text-green-600' : 'text-blue-600'}`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${user.role === 'MILITARY_UNIT' ? 'bg-green-500' : 'bg-blue-500'}`}></span>
+                            {user.role === 'MILITARY_UNIT' ? t('auth.verifiedMilitary') : t('auth.verifiedSeller')}
+                          </p>
+                        ) : (
+                          <p className="text-xs text-amber font-medium flex items-center gap-1 mt-0.5">
+                            <span className="w-1.5 h-1.5 bg-amber rounded-full"></span>
+                            {t('auth.unverified')}
+                          </p>
+                        )
                       )}
                     </div>
 

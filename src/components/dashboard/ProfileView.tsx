@@ -252,21 +252,23 @@ export function ProfileView() {
                                 </div>
                             </div>
 
-                            {/* Verification Status */}
-                            <div className="group">
-                                <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1 block">{t('profile.verificationStatus')}</label>
-                                <div className="flex items-center gap-2">
-                                    {user.isVerified ? (
-                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-sm text-sm font-medium bg-green-50 text-green-700 border border-green-200">
-                                            <CheckCircle className="w-4 h-4" /> {t('profile.verifiedIdentity')}
-                                        </span>
-                                    ) : (
-                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-sm text-sm font-medium bg-gray-50 text-gray-600 border border-gray-200">
-                                            <Shield className="w-4 h-4 text-gray-400" /> {t('profile.unverified')}
-                                        </span>
-                                    )}
+                            {/* Verification Status - Only shown for Military and Seller */}
+                            {(user.role === 'SELLER' || user.role === 'MILITARY_UNIT') && (
+                                <div className="group">
+                                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1 block">{t('profile.verificationStatus')}</label>
+                                    <div className="flex items-center gap-2">
+                                        {user.isVerified ? (
+                                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-sm text-sm font-medium bg-green-50 text-green-700 border border-green-200">
+                                                <CheckCircle className="w-4 h-4" /> {t('profile.verifiedIdentity')}
+                                            </span>
+                                        ) : (
+                                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-sm text-sm font-medium bg-gray-50 text-gray-600 border border-gray-200">
+                                                <Shield className="w-4 h-4 text-gray-400" /> {t('profile.unverified')}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
                             {/* Member Since */}
                             <div className="group">

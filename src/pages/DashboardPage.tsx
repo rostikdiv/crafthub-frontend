@@ -12,18 +12,29 @@ import { ReviewsView } from '../components/dashboard/ReviewsView';
 import { VerificationView } from '../components/dashboard/VerificationView';
 import { AddressBookView } from '../components/dashboard/AddressBookView';
 import { ProfileView } from '../components/dashboard/ProfileView';
+import { useAuth } from '../lib/authContext';
+
 export function DashboardPage() {
+  const { user } = useAuth();
   const location = useLocation();
+  const isVerificationApplicable = (user?.role === 'SELLER' || user?.role === 'MILITARY_UNIT' || !!user?.sellerProfile || !!user?.militaryProfile) && user?.role !== 'ADMIN';
+  
+  const initialTab = (location.state as { tab?: DashboardTab })?.tab;
   const [activeTab, setActiveTab] = useState<DashboardTab>(
-    (location.state as { tab?: DashboardTab })?.tab || 'orders'
+    (initialTab === 'verification' && !isVerificationApplicable) ? 'orders' : (initialTab || 'orders')
   );
 
   // Update active tab if location state changes (for navigation from navbar)
   React.useEffect(() => {
     if (location.state && (location.state as any).tab) {
-      setActiveTab((location.state as any).tab);
+      const targetTab = (location.state as any).tab;
+      if (targetTab === 'verification' && !isVerificationApplicable) {
+        setActiveTab('orders');
+      } else {
+        setActiveTab(targetTab);
+      }
     }
-  }, [location.state]);
+  }, [location.state, isVerificationApplicable]);
 
   return (
     <motion.div

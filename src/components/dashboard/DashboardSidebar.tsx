@@ -83,24 +83,31 @@ export function DashboardSidebar({
       {/* Navigation */}
       <nav className="p-2">
         <ul className="space-y-1">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
-            return (
-              <li key={item.id}>
-                <button
-                  onClick={() => onTabChange(item.id)}
-                  className={`
-                    w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold uppercase tracking-wide transition-colors rounded-sm
-                    ${isActive ? 'bg-tactical text-white' : 'text-gray-600 hover:bg-gray-100 hover:text-slate'}
-                  `}>
+          {menuItems
+            .filter((item) => {
+              if (item.id === 'verification') {
+                return (user?.role === 'SELLER' || user?.role === 'MILITARY_UNIT' || !!user?.sellerProfile || !!user?.militaryProfile) && user?.role !== 'ADMIN';
+              }
+              return true;
+            })
+            .map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              return (
+                <li key={item.id}>
+                  <button
+                    onClick={() => onTabChange(item.id)}
+                    className={`
+                      w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold uppercase tracking-wide transition-colors rounded-sm
+                      ${isActive ? 'bg-tactical text-white' : 'text-gray-600 hover:bg-gray-100 hover:text-slate'}
+                    `}>
 
-                  <Icon className="w-4 h-4" />
-                  {item.label}
-                </button>
-              </li>);
+                    <Icon className="w-4 h-4" />
+                    {item.label}
+                  </button>
+                </li>);
 
-          })}
+            })}
         </ul>
       </nav>
 
