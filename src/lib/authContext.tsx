@@ -9,6 +9,7 @@ interface AuthContextType {
     isLoading: boolean;
     login: (credentials: LoginCredentials) => Promise<void>;
     register: (credentials: RegisterCredentials) => Promise<void>;
+    refreshUser: () => Promise<User | null>;
     logout: () => void;
 }
 
@@ -122,6 +123,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     };
 
+    const refreshUser = async (): Promise<User | null> => {
+        try {
+            const currentToken = token || localStorage.getItem('auth_token');
+            if (!currentToken) return null;
+            const userId = getUserIdFromToken(currentToken);
+            if (!userId) return null;
+            const { data: userData } = await api.get<User>(`/users/${userId}`);
+            setUser(userData);
+            localStorage.setItem('auth_user', JSON.stringify(userData));
+            return userData;
+        } catch (err) {
+            console.error('Failed to refresh user', err);
+            return null;
+        }
+    };
+
     const logout = () => {
         setToken(null);
         setUser(null);
@@ -131,7 +148,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, isAuthenticated: !!user, isLoading, login, register, logout }}>
+        <AuthContext.Provider value={{ user, token, isAuthenticated: !!user, isLoading, login, register, refreshUser, logout }}>
             {children}
         </AuthContext.Provider>
     );

@@ -19,7 +19,7 @@ type VerificationDoc = {
 };
 
 export function VerificationView() {
-    const { user, login } = useAuth(); // Need to refresh user potentially, using login is hacky, maybe just api.get
+    const { user, refreshUser } = useAuth();
     const { success, error: showError } = useToast();
     const [docs, setDocs] = useState<VerificationDoc[]>([]);
     const [loading, setLoading] = useState(true);
@@ -48,9 +48,9 @@ export function VerificationView() {
         setMilSaving(true);
         try {
             await api.post('/military/profile', milData);
+            await refreshUser();
             success('Military unit profile details saved successfully!');
             setNeedsMilitaryProfile(false);
-            window.location.reload();
         } catch (err: any) {
             console.error('Failed to save military profile', err);
             showError(err.response?.data?.message || 'Failed to save unit profile details.');

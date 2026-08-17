@@ -21,7 +21,7 @@ import { useTranslation } from 'react-i18next';
 
 export function ProfileView() {
     const { t } = useTranslation();
-    const { user } = useAuth(); // Assuming refreshUser exists, if not we'll just update local state or reload
+    const { user, refreshUser } = useAuth();
     const { success, error: showError } = useToast();
     const [isEditing, setIsEditing] = useState(false);
     const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -67,9 +67,9 @@ export function ProfileView() {
                 lastName: formData.lastName,
             });
 
+            await refreshUser();
             success(t('profile.updateSuccess'));
             setIsEditing(false);
-            window.location.reload();
         } catch (error) {
             console.error('Profile update failed', error);
             showError(t('profile.updateFailed'));
@@ -80,8 +80,8 @@ export function ProfileView() {
         setMilLoading(true);
         try {
             await api.post('/military/profile', milData);
+            await refreshUser();
             success(t('military.saveSuccess'));
-            window.location.reload();
         } catch (err) {
             console.error('Failed to save unit profile', err);
             showError(t('military.saveFailed'));
@@ -94,9 +94,9 @@ export function ProfileView() {
         setMilLoading(true);
         try {
             await api.put('/users/me/military-profile', milData);
+            await refreshUser();
             success(t('military.updateSuccess', 'Military profile updated successfully. Please wait for re-verification.'));
             setIsEditMilitaryModalOpen(false);
-            window.location.reload();
         } catch (err) {
             console.error('Failed to update unit profile', err);
             showError(t('military.updateFailed', 'Failed to update military profile'));
