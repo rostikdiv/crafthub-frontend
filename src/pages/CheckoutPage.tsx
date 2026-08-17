@@ -47,6 +47,7 @@ export function CheckoutPage() {
     cvv: '',
     cardholderName: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch Seller Points if needed
   useEffect(() => {
@@ -134,6 +135,7 @@ export function CheckoutPage() {
       return;
     }
 
+    setIsSubmitting(true);
     try {
       const orderPayload = {
         items: checkoutItems.map(i => ({
@@ -178,6 +180,8 @@ export function CheckoutPage() {
       } else {
         alert(t('checkout.orderSubmissionFailed'));
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -309,9 +313,11 @@ export function CheckoutPage() {
                       {deliveryDetails.zipCode && <><br />{deliveryDetails.zipCode}</>}
                     </p>
                   </div>
-                  <div className="pt-4 flex justify-between">
-                    <Button variant="secondary" onClick={() => setCurrentSection('payment')}>{t('checkout.back')}</Button>
-                    <Button onClick={handleSubmitOrder}>{t('checkout.submitRequisition')}</Button>
+                  <div className="pt-4 flex justify-between items-center">
+                    <Button variant="secondary" onClick={() => setCurrentSection('payment')} disabled={isSubmitting}>{t('checkout.back')}</Button>
+                    <Button onClick={handleSubmitOrder} isLoading={isSubmitting} disabled={isSubmitting}>
+                      {isSubmitting ? t('checkout.processing', 'Processing...') : t('checkout.submitRequisition')}
+                    </Button>
                   </div>
                 </div>
               </motion.div>
