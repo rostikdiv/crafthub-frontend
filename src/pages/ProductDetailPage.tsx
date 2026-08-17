@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -33,71 +33,73 @@ export function ProductDetailPage() {
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchProductAndSeller = async () => {
-      if (!id) return;
-      try {
-        const { data: rawData } = await api.get<any>(`/products/${id}`);
+  const fetchProductAndSeller = useCallback(async () => {
+    if (!id) return;
+    try {
+      const { data: rawData } = await api.get<any>(`/products/${id}`);
 
-        // Map API response to UI Product type
-        const mappedProduct: Product = {
-          id: rawData.id,
-          name: rawData.name,
-          description: rawData.description,
-          price: rawData.price,
-          category: rawData.categoryName || 'General',
-          clearanceLevel: rawData.accessLevel || 'UNRESTRICTED',
-          sellerId: rawData.sellerId,
-          // Generate specs from dimensions/weight if available
-          specs: [
-            { label: 'Weight', value: rawData.weight ? `${rawData.weight} kg` : 'N/A' },
-            {
-              label: 'Dimensions', value: (rawData.length && rawData.width && rawData.height)
-                ? `${rawData.length} x ${rawData.width} x ${rawData.height} cm`
-                : 'N/A'
-            }
-          ].filter(s => s.value !== 'N/A'),
-          inStock: (rawData.quantity || 0) > 0,
-          stockCount: rawData.quantity || 0,
-          isNew: false,
-          onClearance: rawData.oldPrice != null,
-          itemNumber: rawData.id.substring(0, 8).toUpperCase(),
-          imageUrl: rawData.previewImageUrl,
-          imageUrls: rawData.imageUrls || [],
-          rating: rawData.averageRating != null ? rawData.averageRating : (rawData.rating != null ? rawData.rating : 0),
-          reviewCount: rawData.reviewCount != null ? rawData.reviewCount : 0
-        };
-
-        setProduct(mappedProduct);
-
-        if (mappedProduct.sellerId) {
-          try {
-            const { data: d } = await api.get<any>(`/users/${mappedProduct.sellerId}/seller-info`);
-            const mappedSeller: Seller = {
-              id: d.userId,
-              name: d.companyName || 'Unknown Seller',
-              companyName: d.companyName,
-              code: 'SELLER',
-              verified: d.isVerified || false,
-              rating: d.rating || 0,
-              totalSales: d.totalSales || 0,
-              location: 'Ukraine',
-              logoUrl: d.logoUrl,
-              reviewCount: d.reviewCount || 0
-            };
-            setSeller(mappedSeller);
-          } catch (err) {
-            console.error('Failed to fetch seller info', err);
+      // Map API response to UI Product type
+      const mappedProduct: Product = {
+        id: rawData.id,
+        name: rawData.name,
+        description: rawData.description,
+        price: rawData.price,
+        category: rawData.categoryName || 'General',
+        clearanceLevel: rawData.accessLevel || 'UNRESTRICTED',
+        sellerId: rawData.sellerId,
+        // Generate specs from dimensions/weight if available
+        specs: [
+          { label: 'Weight', value: rawData.weight ? `${rawData.weight} kg` : 'N/A' },
+          {
+            label: 'Dimensions', value: (rawData.length && rawData.width && rawData.height)
+              ? `${rawData.length} x ${rawData.width} x ${rawData.height} cm`
+              : 'N/A'
           }
+        ].filter(s => s.value !== 'N/A'),
+        inStock: (rawData.quantity || 0) > 0,
+        stockCount: rawData.quantity || 0,
+        isNew: false,
+        onClearance: rawData.oldPrice != null,
+        itemNumber: rawData.id.substring(0, 8).toUpperCase(),
+        imageUrl: rawData.previewImageUrl,
+        imageUrls: rawData.imageUrls || [],
+        rating: rawData.averageRating != null ? rawData.averageRating : (rawData.rating != null ? rawData.rating : 0),
+        reviewCount: rawData.reviewCount != null ? rawData.reviewCount : 0
+      };
+
+      setProduct(mappedProduct);
+
+      if (mappedProduct.sellerId) {
+        try {
+          const { data: d } = await api.get<any>(`/users/${mappedProduct.sellerId}/seller-info`);
+          const mappedSeller: Seller = {
+            id: d.userId,
+            name: d.companyName || 'Unknown Seller',
+            companyName: d.companyName,
+            code: 'SELLER',
+            verified: d.isVerified || false,
+            rating: d.rating || 0,
+            totalSales: d.totalSales || 0,
+            location: 'Ukraine',
+            logoUrl: d.logoUrl,
+            reviewCount: d.reviewCount || 0
+          };
+          setSeller(mappedSeller);
+        } catch (err) {
+          console.error('Failed to fetch seller info', err);
         }
-      } catch (error) {
-        console.error('Failed to fetch product', error);
-      } finally {
-        setLoading(false);
       }
-    };
-    fetchProductAndSeller();
+    } catch (error) {
+      console.error('Failed to fetch product', error);
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
+
+  useEffect(() => {
+    setLoading(true);
+    fetchProductAndSeller();
+  }, [fetchProductAndSeller]);
 
   if (loading) {
     return (
