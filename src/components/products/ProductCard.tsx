@@ -26,8 +26,24 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   const isRestricted = product.clearanceLevel === 'RESTRICTED';
-  const canPurchaseRestricted = user?.role === 'MILITARY_UNIT' || user?.role === 'ADMIN';
+  const isMilitaryRole = user?.role === 'MILITARY_UNIT' || user?.role === 'ADMIN';
+  const isVerifiedMilitary = isMilitaryRole && (user?.isVerified === true || user?.role === 'ADMIN');
+  const canPurchaseRestricted = isVerifiedMilitary;
   const isButtonDisabled = !product.inStock || (isRestricted && !canPurchaseRestricted);
+
+  const getButtonText = () => {
+    if (!product.inStock) return t('product.outOfStock');
+    if (isRestricted) {
+      if (!user) return t('product.loginRequired', 'Login Required');
+      if (user.role === 'MILITARY_UNIT' && !user.isVerified) {
+        return t('product.clearancePending', 'Clearance Pending');
+      }
+      if (!isMilitaryRole) {
+        return t('product.restrictedMilitary');
+      }
+    }
+    return t('product.addToRequisition');
+  };
 
   return (
     <div className={`h-full ${!product.inStock ? 'opacity-60' : ''}`}>
@@ -134,7 +150,7 @@ export function ProductCard({ product }: ProductCardProps) {
               disabled={isButtonDisabled}
               variant={(isRestricted && !canPurchaseRestricted) ? "secondary" : "primary"}
               onClick={handleAddToCart}>
-              {isRestricted && !canPurchaseRestricted ? t('product.restrictedMilitary') : t('product.addToRequisition')}
+              {getButtonText()}
             </Button>
           </div>
         </article>

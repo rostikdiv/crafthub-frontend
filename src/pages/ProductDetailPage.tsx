@@ -136,8 +136,24 @@ export function ProductDetailPage() {
   };
 
   const isRestricted = product.clearanceLevel === 'RESTRICTED';
-  const canPurchaseRestricted = user?.role === 'MILITARY_UNIT' || user?.role === 'ADMIN';
+  const isMilitaryRole = user?.role === 'MILITARY_UNIT' || user?.role === 'ADMIN';
+  const isVerifiedMilitary = isMilitaryRole && (user?.isVerified === true || user?.role === 'ADMIN');
+  const canPurchaseRestricted = isVerifiedMilitary;
   const isButtonDisabled = !product.inStock || (isRestricted && !canPurchaseRestricted);
+
+  const getButtonText = () => {
+    if (!product.inStock) return t('product.outOfStock');
+    if (isRestricted) {
+      if (!user) return t('product.loginRequired', 'Login Required (Military Only)');
+      if (user.role === 'MILITARY_UNIT' && !user.isVerified) {
+        return t('product.clearancePending', 'Clearance Approval Pending');
+      }
+      if (!isMilitaryRole) {
+        return t('product.restrictedMilitaryOnly');
+      }
+    }
+    return t('product.addToRequisition');
+  };
 
   return (
     <motion.div
@@ -282,9 +298,18 @@ export function ProductDetailPage() {
                 disabled={isButtonDisabled}
                 variant={(isRestricted && !canPurchaseRestricted) ? "secondary" : "primary"}
                 onClick={handleAddToCart}>
-                {isRestricted && !canPurchaseRestricted ? t('product.restrictedMilitaryOnly') : t('product.addToRequisition')}
+                {getButtonText()}
               </Button>
             </div>
+
+            {isRestricted && user?.role === 'MILITARY_UNIT' && !user?.isVerified && (
+              <div className="mb-6 p-3 bg-amber-50 border border-amber-200 rounded-sm text-xs text-amber-900 flex items-center justify-between">
+                <span>Your military clearance verification is under review.</span>
+                <Link to="/dashboard" state={{ tab: 'verification' }} className="font-bold underline hover:text-amber-700">
+                  View Status
+                </Link>
+              </div>
+            )}
 
             {/* Characteristics Table */}
             <div className="border-t-2 border-tactical pt-4 mb-8">

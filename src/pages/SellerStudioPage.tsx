@@ -98,6 +98,10 @@ export function SellerStudioPage() {
   };
 
   const handleCreateProduct = () => {
+    if (!user?.isVerified) {
+      showError(t('sellerStudio.verificationRequired', 'Verification Required: Your seller account must be approved before adding products to the catalog.'));
+      return;
+    }
     setProductToEdit(null);
     setIsProductModalOpen(true);
   };
@@ -134,6 +138,30 @@ export function SellerStudioPage() {
       className="page-wrapper"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Verification Warning Banner for Unverified Sellers */}
+        {user?.role === 'SELLER' && !user?.isVerified && (
+          <div className="mb-8 p-5 bg-amber-50 border border-amber-200 rounded-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <AlertTriangleIcon className="w-5 h-5 text-amber-700" />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate text-sm uppercase tracking-tight">Seller Account Pending Verification</h3>
+                <p className="text-xs text-amber-800 mt-1 max-w-2xl">
+                  Your store profile is currently in setup mode. You can configure your store details, but adding public products and processing customer orders will be activated once your documents are approved by an administrator.
+                </p>
+              </div>
+            </div>
+            <Link
+              to="/dashboard"
+              state={{ tab: 'verification' }}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold uppercase tracking-wider rounded-sm transition-colors flex-shrink-0"
+            >
+              Verify Account
+            </Link>
+          </div>
+        )}
+
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-xs mb-8">
           <Link to="/" className="text-gray-500 hover:text-slate transition-colors">{t('sellerStudio.home')}</Link>
@@ -160,10 +188,13 @@ export function SellerStudioPage() {
             </Button>
             <Button
               onClick={handleCreateProduct}
-              className="flex items-center gap-2"
+              className={`flex items-center gap-2 ${!user?.isVerified ? 'opacity-80 bg-gray-600 hover:bg-gray-700' : ''}`}
             >
               <PlusIcon className="w-4 h-4" />
               {t('sellerStudio.addNewProduct')}
+              {!user?.isVerified && (
+                <span className="ml-1 text-[10px] bg-amber-500 text-slate px-1.5 py-0.5 rounded font-mono font-bold">LOCKED</span>
+              )}
             </Button>
           </div>
         </div>
