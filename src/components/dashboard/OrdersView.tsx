@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { PackageIcon, ClockIcon, MapPinIcon, CreditCardIcon } from 'lucide-react';
+import { PackageIcon, ClockIcon, MapPinIcon, CreditCardIcon, ExternalLinkIcon } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { api } from '../../lib/api';
 import { OrderDetailsModal } from './OrderDetailsModal';
@@ -140,26 +141,38 @@ export function OrdersView() {
               {/* Inner Cells for Items */}
               <div className="p-4 bg-white space-y-3">
                 {order.items.map((item, i) => (
-                  <div key={i} className="flex items-center justify-between p-3 border border-gray-100 rounded-sm bg-gray-50/50 hover:bg-gray-50 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-white border border-gray-200 rounded-sm flex items-center justify-center">
-                        <div className="w-2 h-2 bg-slate rounded-full" />
+                  <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 border border-gray-100 rounded-sm bg-gray-50/50 hover:bg-gray-50 transition-colors gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 bg-white border border-gray-200 rounded-sm flex items-center justify-center flex-shrink-0 text-slate">
+                        <PackageIcon className="w-5 h-5 text-gray-400" />
                       </div>
-                      <div>
-                        <p className="text-xs font-mono text-gray-500 uppercase">Product ID</p>
-                        <p className="text-sm font-medium text-slate font-mono">{item.productId}</p>
+                      <div className="min-w-0">
+                        <Link
+                          to={`/products/${item.productId}`}
+                          className="font-bold text-sm uppercase tracking-tight text-slate hover:text-tactical transition-colors flex items-center gap-1.5 line-clamp-1"
+                        >
+                          {item.name || `Product #${item.productId.substring(0, 8)}`}
+                          <ExternalLinkIcon className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                        </Link>
+                        <p className="text-[10px] font-mono text-gray-400 mt-0.5">ID: {item.productId.substring(0, 8)}...</p>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-8">
-                      <div className="text-right">
-                        <p className="text-[10px] text-gray-500 uppercase">Quantity</p>
-                        <p className="font-mono font-bold text-slate">x{item.quantity}</p>
+                    <div className="flex items-center justify-between sm:justify-end gap-6 border-t sm:border-t-0 pt-2 sm:pt-0 border-gray-200">
+                      <div className="text-left sm:text-right">
+                        <p className="text-[10px] text-gray-400 uppercase font-bold">Qty</p>
+                        <p className="font-mono font-bold text-slate">× {item.quantity}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-[10px] text-gray-500 uppercase">Unit Price</p>
-                        <p className="font-mono font-bold text-slate">
+                        <p className="text-[10px] text-gray-400 uppercase font-bold">Unit Price</p>
+                        <p className="font-mono text-xs text-gray-600">
                           {formatPrice(item.pricePerUnit)}
+                        </p>
+                      </div>
+                      <div className="text-right min-w-[70px]">
+                        <p className="text-[10px] text-gray-400 uppercase font-bold">Subtotal</p>
+                        <p className="font-mono font-bold text-tactical text-sm">
+                          {formatPrice(item.pricePerUnit * item.quantity)}
                         </p>
                       </div>
                     </div>

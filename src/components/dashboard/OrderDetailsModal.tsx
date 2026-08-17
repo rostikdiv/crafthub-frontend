@@ -1,7 +1,8 @@
 
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { XIcon, PackageIcon, TruckIcon, MapPinIcon, CreditCardIcon, CheckCircleIcon, AlertTriangleIcon } from 'lucide-react';
+import { XIcon, PackageIcon, TruckIcon, MapPinIcon, CreditCardIcon, CheckCircleIcon, AlertTriangleIcon, ExternalLinkIcon } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { api, orderActionsApi } from '../../lib/api';
 import { Order } from '../../lib/types';
@@ -175,19 +176,27 @@ export function OrderDetailsModal({ isOpen, onClose, orderId }: OrderDetailsModa
                                     </div>
                                     <div className="divide-y divide-gray-100">
                                         {order.items?.map((item, idx) => (
-                                            <div key={idx} className="p-4 flex justify-between items-center">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center font-bold text-gray-400 text-xs">
-                                                        {idx + 1}
+                                            <div key={idx} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                                <div className="flex items-center gap-3 min-w-0">
+                                                    <div className="w-10 h-10 bg-white border border-gray-200 rounded-sm flex items-center justify-center font-bold text-gray-400 text-xs shrink-0">
+                                                        <PackageIcon className="w-5 h-5 text-gray-400" />
                                                     </div>
-                                                    <div>
-                                                        <p className="font-semibold text-slate text-sm">Product ID: {item.productId.substring(0, 8)}...</p>
-                                                        <p className="text-xs text-gray-500">Unit Price: {formatPrice(item.pricePerUnit)}</p>
+                                                    <div className="min-w-0">
+                                                        <Link
+                                                            to={`/products/${item.productId}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="font-bold text-slate text-sm uppercase tracking-tight hover:text-tactical transition-colors flex items-center gap-1.5 line-clamp-1"
+                                                        >
+                                                            {item.name || `Product #${item.productId.substring(0, 8)}`}
+                                                            <ExternalLinkIcon className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                                                        </Link>
+                                                        <p className="text-[10px] font-mono text-gray-400 mt-0.5">ID: {item.productId.substring(0, 8)}... • Unit: {formatPrice(item.pricePerUnit)}</p>
                                                     </div>
                                                 </div>
-                                                <div className="text-right">
-                                                    <p className="text-sm font-mono font-bold">x{item.quantity}</p>
-                                                    <p className="text-xs font-bold text-tactical">
+                                                <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0 border-gray-100">
+                                                    <p className="text-xs font-mono font-bold text-slate">× {item.quantity}</p>
+                                                    <p className="text-sm font-bold text-tactical font-mono">
                                                         {formatPrice(item.pricePerUnit * item.quantity)}
                                                     </p>
                                                 </div>
