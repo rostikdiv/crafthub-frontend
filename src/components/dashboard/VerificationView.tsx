@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Shield, Upload, FileText, CheckCircle, XCircle, Clock, Trash, Building2, UserCircle, ArrowRight } from 'lucide-react';
+import { Shield, Upload, FileText, CheckCircle, XCircle, Clock, Trash, Building2, UserCircle, ArrowRight, Info, LogOut } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { useAuth } from '../../lib/authContext';
 import { api } from '../../lib/api';
 import { useToast } from '../../lib/toastContext';
+import { useTranslation } from 'react-i18next';
 import { DashboardTab } from './DashboardSidebar';
 
 type VerificationStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
@@ -23,6 +24,7 @@ interface VerificationViewProps {
 }
 
 export function VerificationView({ onNavigateTab }: VerificationViewProps) {
+    const { t } = useTranslation();
     const { user } = useAuth();
     const { success, error: showError } = useToast();
     const [docs, setDocs] = useState<VerificationDoc[]>([]);
@@ -137,11 +139,10 @@ export function VerificationView({ onNavigateTab }: VerificationViewProps) {
                     <div>
                         <h2 className="text-lg font-bold text-slate uppercase tracking-tight flex items-center gap-2">
                             <Shield className="w-5 h-5 text-tactical" />
-                            Clearance & Verification Status
+                            {t('verification.title')}
                         </h2>
                         <p className="text-sm text-gray-600 mt-1">
-                            {isMilitary ? 'Military Unit clearance status for restricted tactical gear access.' :
-                                isSeller ? 'Seller business verification status for public catalog selling.' : 'Identity & Document Verification'}
+                            {t('verification.subtitle')}
                         </p>
                     </div>
                     <div className={`px-4 py-2 rounded-full text-xs font-bold border flex items-center gap-2 ${user?.isVerified ? 'text-green-700 bg-green-50 border-green-200' : 'text-gray-600 bg-gray-50 border-gray-200'
@@ -149,14 +150,31 @@ export function VerificationView({ onNavigateTab }: VerificationViewProps) {
                         {user?.isVerified ? (
                             <>
                                 <CheckCircle className="w-4 h-4" />
-                                VERIFIED
+                                {t('verification.statusApproved')}
                             </>
                         ) : (
                             <>
                                 <Clock className="w-4 h-4" />
-                                {user?.isVerified === false ? 'UNVERIFIED' : 'PENDING REVIEW'}
+                                {user?.isVerified === false ? t('auth.unverified').toUpperCase() : t('verification.statusPending')}
                             </>
                         )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Re-login Reminder Notice Banner */}
+            <div className="bg-slate-900 border-l-4 border-amber-500 p-5 rounded-sm shadow-md text-white">
+                <div className="flex items-start gap-3">
+                    <div className="p-2 bg-amber-500/20 rounded-sm mt-0.5 text-amber-400">
+                        <Info className="w-5 h-5" />
+                    </div>
+                    <div>
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
+                            {t('verification.reloginNoticeTitle')}
+                        </h4>
+                        <p className="text-xs text-gray-300 mt-1 leading-relaxed">
+                            {t('verification.reloginNoticeDesc')}
+                        </p>
                     </div>
                 </div>
             </div>

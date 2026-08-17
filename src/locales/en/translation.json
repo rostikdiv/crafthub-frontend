@@ -349,5 +349,20 @@
     "deliveryDesc": "Manage delivery usage, locations, and carrier integration.",
     "tabVerification": "Identity Verification",
     "tabDelivery": "Delivery Management"
+  },
+  "verification": {
+    "title": "CLEARANCE & VERIFICATION",
+    "subtitle": "Upload official identity and authorization documents to gain verified access.",
+    "reloginNoticeTitle": "IMPORTANT NOTICE FOR VERIFICATION",
+    "reloginNoticeDesc": "After your verification request is reviewed and approved by an administrator, you must LOG OUT and LOG IN again to update your security token and unlock restricted capabilities (purchasing restricted items or listing products).",
+    "requiredDocs": "Required Verification Documents",
+    "uploadedDocs": "Submitted Verification Documents",
+    "statusPending": "UNDER REVIEW",
+    "statusApproved": "VERIFIED & ACTIVE",
+    "statusRejected": "REJECTED BY ADMIN",
+    "uploadSuccess": "Document submitted for review successfully",
+    "uploadFailed": "Failed to upload document",
+    "missingProfileNotice": "You need to complete your profile before submitting verification documents.",
+    "createProfile": "Create Profile"
   }
 }
