@@ -1,63 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Shield, Upload, FileText, CheckCircle, XCircle, Clock, Trash, Building2, UserCircle } from 'lucide-react';
+import { Shield, Upload, FileText, CheckCircle, XCircle, Clock, Trash, Building2, UserCircle, ArrowRight } from 'lucide-react';
 import { Button } from '../ui/Button';
-import { Input } from '../ui/Input';
 import { useAuth } from '../../lib/authContext';
 import { api } from '../../lib/api';
 import { useToast } from '../../lib/toastContext';
-import { fixImageUrl } from '../../lib/imageUtils';
+import { DashboardTab } from './DashboardSidebar';
 
 type VerificationStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+type DocumentType = 'PASSPORT' | 'MILITARY_ID' | 'REGISTRATION_CERT' | 'LICENSE' | 'UNIT_ORDER';
 
 type VerificationDoc = {
     id: string;
-    documentType: 'PASSPORT' | 'MILITARY_ID';
+    documentType: DocumentType;
     docUrl: string;
     status: VerificationStatus;
     createdAt: string;
 };
 
-export function VerificationView() {
-    const { user, refreshUser } = useAuth();
+interface VerificationViewProps {
+    onNavigateTab?: (tab: DashboardTab) => void;
+}
+
+export function VerificationView({ onNavigateTab }: VerificationViewProps) {
+    const { user } = useAuth();
     const { success, error: showError } = useToast();
     const [docs, setDocs] = useState<VerificationDoc[]>([]);
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
-
     const [error, setError] = useState<string | null>(null);
 
-    // Profile Form State
-    const [needsMilitaryProfile, setNeedsMilitaryProfile] = useState(false);
-    const [milData, setMilData] = useState({
-        unitNumber: user?.militaryProfile?.unitNumber || '',
-        edrpou: user?.militaryProfile?.edrpou || '',
-        commanderName: user?.militaryProfile?.commanderName || '',
-        officialAddress: user?.militaryProfile?.officialAddress || ''
-    });
-    const [milSaving, setMilSaving] = useState(false);
+    const isMilitary = user?.role === 'MILITARY_UNIT' || !!user?.militaryProfile;
+    const isSeller = user?.role === 'SELLER' || !!user?.sellerProfile;
 
-    useEffect(() => {
-        if (!user) return;
-        const missingMil = (user.role === 'MILITARY_UNIT' || !!user.militaryProfile) && !user.militaryProfile;
-        setNeedsMilitaryProfile(missingMil);
-    }, [user]);
-
-    const handleSaveMilitaryProfile = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setMilSaving(true);
-        try {
-            await api.post('/military/profile', milData);
-            await refreshUser();
-            success('Military unit profile details saved successfully!');
-            setNeedsMilitaryProfile(false);
-        } catch (err: any) {
-            console.error('Failed to save military profile', err);
-            showError(err.response?.data?.message || 'Failed to save unit profile details.');
-        } finally {
-            setMilSaving(false);
-        }
-    };
+    const hasProfile = isMilitary
+        ? !!user?.militaryProfile
+        : isSeller
+            ? !!user?.sellerProfile
+            : true;
 
     const fetchDocs = async () => {
         if (!user) return;
@@ -78,7 +58,7 @@ export function VerificationView() {
         fetchDocs();
     }, [user]);
 
-    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'PASSPORT' | 'MILITARY_ID') => {
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: DocumentType) => {
         if (!e.target.files?.[0]) return;
 
         const file = e.target.files[0];
@@ -98,11 +78,11 @@ export function VerificationView() {
                 docUrl: uploadData.url
             });
 
-            success('Document uploaded successfully!');
+            success('Document uploaded successfully for review!');
             fetchDocs(); // Refresh list
-        } catch (err) {
+        } catch (err: any) {
             console.error('Upload failed', err);
-            showError('Failed to upload document.');
+            showError(err.response?.data?.message || 'Failed to upload document.');
         } finally {
             setUploading(false);
         }
@@ -136,10 +116,18 @@ export function VerificationView() {
         }
     };
 
+    const getDocTypeName = (type: DocumentType) => {
+        switch (type) {
+            case 'MILITARY_ID': return 'Military ID / Officer Certificate';
+            case 'REGISTRATION_CERT': return 'Company Registration / Tax Extract';
+            case 'LICENSE': return 'Special License / Permit';
+            case 'UNIT_ORDER': return 'Commander Order';
+            default: return 'Personal ID / Passport';
+        }
+    };
+
     if (loading) return <div className="p-8 text-center text-gray-500">Loading verification status...</div>;
     if (error) return <div className="p-8 text-center text-red-500">{error} <Button variant="link" onClick={fetchDocs}>Retry</Button></div>;
-
-    const isMilitary = user?.role === 'MILITARY_UNIT' || !!user?.militaryProfile;
 
     return (
         <div className="space-y-6 animate-in slide-in-from-right duration-500">
@@ -149,11 +137,11 @@ export function VerificationView() {
                     <div>
                         <h2 className="text-lg font-bold text-slate uppercase tracking-tight flex items-center gap-2">
                             <Shield className="w-5 h-5 text-tactical" />
-                            Identity Verification
+                            Clearance & Verification Status
                         </h2>
                         <p className="text-sm text-gray-600 mt-1">
-                            {isMilitary ? 'Verify your Military Unit clearance to access restricted tactical gear.' :
-                                user?.role === 'SELLER' ? 'Verify your Seller account credentials.' : 'Account Verification'}
+                            {isMilitary ? 'Military Unit clearance status for restricted tactical gear access.' :
+                                isSeller ? 'Seller business verification status for public catalog selling.' : 'Identity & Document Verification'}
                         </p>
                     </div>
                     <div className={`px-4 py-2 rounded-full text-xs font-bold border flex items-center gap-2 ${user?.isVerified ? 'text-green-700 bg-green-50 border-green-200' : 'text-gray-600 bg-gray-50 border-gray-200'
@@ -166,133 +154,213 @@ export function VerificationView() {
                         ) : (
                             <>
                                 <Clock className="w-4 h-4" />
-                                {user?.isVerified === false ? 'UNVERIFIED' : 'PENDING'}
+                                {user?.isVerified === false ? 'UNVERIFIED' : 'PENDING REVIEW'}
                             </>
                         )}
                     </div>
                 </div>
             </div>
 
-            {/* Inline Military Unit Profile Completion if needed */}
-            {needsMilitaryProfile && (
-                <div className="bg-amber-50 p-6 rounded-sm border border-amber-200">
-                    <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <Shield className="w-5 h-5 text-amber-700" />
-                        </div>
-                        <div>
-                            <h3 className="font-bold text-slate uppercase tracking-tight">Step 1: Military Unit Details</h3>
-                            <p className="text-xs text-amber-800">Please provide unit credentials before or along with submitting your documents.</p>
-                        </div>
+            {/* Step 1 Requirement Prompt: Profile Must Be Created First */}
+            {!hasProfile ? (
+                <div className="bg-amber-50 p-8 rounded-sm border border-amber-200 flex flex-col items-center text-center">
+                    <div className="w-14 h-14 bg-amber-100 rounded-full flex items-center justify-center mb-4">
+                        {isMilitary ? (
+                            <Shield className="w-7 h-7 text-amber-700" />
+                        ) : (
+                            <Building2 className="w-7 h-7 text-amber-700" />
+                        )}
                     </div>
-
-                    <form onSubmit={handleSaveMilitaryProfile} className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <Input
-                                label="Military Unit Number"
-                                placeholder="e.g. A1234"
-                                value={milData.unitNumber}
-                                onChange={(e: any) => setMilData({ ...milData, unitNumber: e.target.value })}
-                                required
-                            />
-                            <Input
-                                label="EDRPOU Code"
-                                placeholder="e.g. 12345678"
-                                value={milData.edrpou}
-                                onChange={(e: any) => setMilData({ ...milData, edrpou: e.target.value })}
-                            />
-                            <Input
-                                label="Commander Name / Rank"
-                                placeholder="e.g. Col. Ivan Shevchenko"
-                                value={milData.commanderName}
-                                onChange={(e: any) => setMilData({ ...milData, commanderName: e.target.value })}
-                                required
-                            />
-                            <Input
-                                label="Official Unit Address"
-                                placeholder="e.g. Kyiv, Base #12"
-                                value={milData.officialAddress}
-                                onChange={(e: any) => setMilData({ ...milData, officialAddress: e.target.value })}
-                                required
-                            />
-                        </div>
-
-                        <div className="flex justify-end">
-                            <Button type="submit" isLoading={milSaving} disabled={milSaving} className="bg-amber-600 hover:bg-amber-700 text-white">
-                                Save Unit Details
-                            </Button>
-                        </div>
-                    </form>
-                </div>
-            )}
-
-            {/* Upload Section */}
-            {!user?.isVerified && (
-                <div className="grid md:grid-cols-2 gap-6">
-                    {/* Passport / ID */}
-                    <div className="bg-white p-6 rounded-sm border border-border flex flex-col items-center text-center gap-4 hover:border-tactical/50 transition-colors">
-                        <div className="w-12 h-12 bg-slate/5 rounded-full flex items-center justify-center">
-                            <FileText className="w-6 h-6 text-slate" />
-                        </div>
-                        <div>
-                            <h3 className="font-bold text-slate">Personal ID / Passport</h3>
-                            <p className="text-xs text-gray-500 mt-1">Required for identity confirmation</p>
-                        </div>
-                        <div className="w-full">
-                            <input
-                                type="file"
-                                id="upload-passport"
-                                className="hidden"
-                                accept=".pdf,.jpg,.jpeg,.png"
-                                onChange={(e) => handleFileUpload(e, 'PASSPORT')}
-                                disabled={uploading}
-                            />
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => document.getElementById('upload-passport')?.click()}
-                                disabled={uploading}
-                                className="w-full flex items-center justify-center gap-2"
-                            >
-                                <Upload className="w-4 h-4" />
-                                {uploading ? 'Uploading...' : 'Upload Passport / ID'}
-                            </Button>
-                        </div>
-                    </div>
-
-                    {/* Military ID - For Military Units and users with military profile */}
-                    {isMilitary && (
-                        <div className="bg-white p-6 rounded-sm border border-border flex flex-col items-center text-center gap-4 hover:border-tactical/50 transition-colors">
-                            <div className="w-12 h-12 bg-slate/5 rounded-full flex items-center justify-center">
-                                <Shield className="w-6 h-6 text-slate" />
-                            </div>
-                            <div>
-                                <h3 className="font-bold text-slate">Military ID / Order</h3>
-                                <p className="text-xs text-gray-500 mt-1">Required for Military Units status</p>
-                            </div>
-                            <div className="w-full">
-                                <input
-                                    type="file"
-                                    id="upload-military"
-                                    className="hidden"
-                                    accept=".pdf,.jpg,.jpeg,.png"
-                                    onChange={(e) => handleFileUpload(e, 'MILITARY_ID')}
-                                    disabled={uploading}
-                                />
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => document.getElementById('upload-military')?.click()}
-                                    disabled={uploading}
-                                    className="w-full flex items-center justify-center gap-2"
-                                >
-                                    <Upload className="w-4 h-4" />
-                                    {uploading ? 'Uploading...' : 'Upload Military ID'}
-                                </Button>
-                            </div>
-                        </div>
+                    <h3 className="text-lg font-bold text-slate uppercase tracking-tight mb-2">
+                        {isMilitary ? 'Military Unit Profile Required First' : 'Shop Profile Required First'}
+                    </h3>
+                    <p className="text-sm text-gray-600 max-w-lg mb-6 leading-relaxed">
+                        {isMilitary
+                            ? 'Before submitting verification documents, please fill in your Military Unit details (Unit Number, EDRPOU, Commander, and Base Address) in your profile.'
+                            : 'Before submitting business documents, please set up your Seller Shop profile (Company Name, Tax ID, and store details).'}
+                    </p>
+                    {isMilitary ? (
+                        <Button
+                            onClick={() => {
+                                if (onNavigateTab) {
+                                    onNavigateTab('profile');
+                                } else {
+                                    window.location.href = '/dashboard';
+                                }
+                            }}
+                            className="bg-amber-600 hover:bg-amber-700 text-white flex items-center gap-2 font-bold uppercase tracking-wider text-xs px-6 py-3"
+                        >
+                            Complete Military Unit Profile
+                            <ArrowRight className="w-4 h-4" />
+                        </Button>
+                    ) : (
+                        <Button
+                            onClick={() => window.location.href = '/seller'}
+                            className="bg-amber-600 hover:bg-amber-700 text-white flex items-center gap-2 font-bold uppercase tracking-wider text-xs px-6 py-3"
+                        >
+                            Go to Shop Studio Settings
+                            <ArrowRight className="w-4 h-4" />
+                        </Button>
                     )}
                 </div>
+            ) : (
+                /* Step 2: Document Upload Section (Tailored by Role) */
+                !user?.isVerified && (
+                    <div className="space-y-4">
+                        <div className="border-b border-border pb-2">
+                            <h3 className="text-xs font-bold uppercase tracking-wider text-slate">
+                                Step 2: Submit Verification Documents
+                            </h3>
+                            <p className="text-xs text-gray-500 mt-0.5">
+                                Upload required documents for administrator verification. Accepted formats: PDF, JPG, PNG.
+                            </p>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-6">
+                            {/* Military Specific Documents */}
+                            {isMilitary && (
+                                <>
+                                    {/* 1. Military ID / Order */}
+                                    <div className="bg-white p-6 rounded-sm border border-border flex flex-col items-center text-center gap-4 hover:border-tactical/50 transition-colors">
+                                        <div className="w-12 h-12 bg-slate/5 rounded-full flex items-center justify-center">
+                                            <Shield className="w-6 h-6 text-tactical" />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-bold text-slate">Military ID / Service Order</h3>
+                                            <p className="text-xs text-gray-500 mt-1">
+                                                Officer certificate or unit appointment order (matching Unit #{user?.militaryProfile?.unitNumber || ''})
+                                            </p>
+                                        </div>
+                                        <div className="w-full">
+                                            <input
+                                                type="file"
+                                                id="upload-military"
+                                                className="hidden"
+                                                accept=".pdf,.jpg,.jpeg,.png"
+                                                onChange={(e) => handleFileUpload(e, 'MILITARY_ID')}
+                                                disabled={uploading}
+                                            />
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => document.getElementById('upload-military')?.click()}
+                                                disabled={uploading}
+                                                className="w-full flex items-center justify-center gap-2"
+                                            >
+                                                <Upload className="w-4 h-4" />
+                                                {uploading ? 'Uploading...' : 'Upload Military ID / Order'}
+                                            </Button>
+                                        </div>
+                                    </div>
+
+                                    {/* 2. Personal ID / Passport */}
+                                    <div className="bg-white p-6 rounded-sm border border-border flex flex-col items-center text-center gap-4 hover:border-tactical/50 transition-colors">
+                                        <div className="w-12 h-12 bg-slate/5 rounded-full flex items-center justify-center">
+                                            <FileText className="w-6 h-6 text-slate" />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-bold text-slate">Authorized Officer Passport / ID</h3>
+                                            <p className="text-xs text-gray-500 mt-1">
+                                                Identity confirmation of the commanding officer or authorized representative
+                                            </p>
+                                        </div>
+                                        <div className="w-full">
+                                            <input
+                                                type="file"
+                                                id="upload-passport"
+                                                className="hidden"
+                                                accept=".pdf,.jpg,.jpeg,.png"
+                                                onChange={(e) => handleFileUpload(e, 'PASSPORT')}
+                                                disabled={uploading}
+                                            />
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => document.getElementById('upload-passport')?.click()}
+                                                disabled={uploading}
+                                                className="w-full flex items-center justify-center gap-2"
+                                            >
+                                                <Upload className="w-4 h-4" />
+                                                {uploading ? 'Uploading...' : 'Upload Officer Passport / ID'}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+
+                            {/* Seller Specific Documents */}
+                            {isSeller && !isMilitary && (
+                                <>
+                                    {/* 1. Registration / Tax Certificate */}
+                                    <div className="bg-white p-6 rounded-sm border border-border flex flex-col items-center text-center gap-4 hover:border-tactical/50 transition-colors">
+                                        <div className="w-12 h-12 bg-slate/5 rounded-full flex items-center justify-center">
+                                            <Building2 className="w-6 h-6 text-tactical" />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-bold text-slate">State Registration / Tax Extract</h3>
+                                            <p className="text-xs text-gray-500 mt-1">
+                                                Extract from State Register (ЄДР / ФОП / ТОВ) matching Tax ID: {user?.sellerProfile?.taxId || 'N/A'}
+                                            </p>
+                                        </div>
+                                        <div className="w-full">
+                                            <input
+                                                type="file"
+                                                id="upload-reg-cert"
+                                                className="hidden"
+                                                accept=".pdf,.jpg,.jpeg,.png"
+                                                onChange={(e) => handleFileUpload(e, 'REGISTRATION_CERT')}
+                                                disabled={uploading}
+                                            />
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => document.getElementById('upload-reg-cert')?.click()}
+                                                disabled={uploading}
+                                                className="w-full flex items-center justify-center gap-2"
+                                            >
+                                                <Upload className="w-4 h-4" />
+                                                {uploading ? 'Uploading...' : 'Upload Registration Certificate'}
+                                            </Button>
+                                        </div>
+                                    </div>
+
+                                    {/* 2. Owner Passport / ID */}
+                                    <div className="bg-white p-6 rounded-sm border border-border flex flex-col items-center text-center gap-4 hover:border-tactical/50 transition-colors">
+                                        <div className="w-12 h-12 bg-slate/5 rounded-full flex items-center justify-center">
+                                            <FileText className="w-6 h-6 text-slate" />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-bold text-slate">Owner / Director Passport</h3>
+                                            <p className="text-xs text-gray-500 mt-1">
+                                                Passport or ID card of the registered business owner or director
+                                            </p>
+                                        </div>
+                                        <div className="w-full">
+                                            <input
+                                                type="file"
+                                                id="upload-seller-passport"
+                                                className="hidden"
+                                                accept=".pdf,.jpg,.jpeg,.png"
+                                                onChange={(e) => handleFileUpload(e, 'PASSPORT')}
+                                                disabled={uploading}
+                                            />
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => document.getElementById('upload-seller-passport')?.click()}
+                                                disabled={uploading}
+                                                className="w-full flex items-center justify-center gap-2"
+                                            >
+                                                <Upload className="w-4 h-4" />
+                                                {uploading ? 'Uploading...' : 'Upload Owner Passport / ID'}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                )
             )}
 
             {/* Documents List */}
@@ -315,12 +383,11 @@ export function VerificationView() {
                                     </div>
                                     <div>
                                         <p className="font-bold text-slate text-sm">
-                                            {doc.documentType === 'MILITARY_ID' ? 'Military ID' : 'Personal ID / Passport'}
+                                            {getDocTypeName(doc.documentType)}
                                         </p>
                                         <p className="text-xs text-gray-500">
                                             Uploaded on {new Date(doc.createdAt).toLocaleDateString()}
                                         </p>
-                                        {/* Added view link here as well for consistency */}
                                         <a
                                             href={`/view-document/${doc.id}`}
                                             target="_blank"

@@ -102,7 +102,7 @@ export function DashboardPage() {
                 {activeTab === 'orders' && <OrdersView />}
                 {activeTab === 'reviews' && <ReviewsView />}
                 {activeTab === 'profile' && <ProfileView />}
-                {activeTab === 'verification' && <VerificationView />}
+                {activeTab === 'verification' && <VerificationView onNavigateTab={setActiveTab} />}
                 {activeTab === 'addresses' && <AddressBookView />}
               </motion.div>
             </AnimatePresence>
