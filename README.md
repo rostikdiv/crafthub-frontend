@@ -1,124 +1,126 @@
-# MilHub Frontend
+# 🛡️ MilHub Web Platform
 
-*Looking for the backend? The Spring Boot Microservices repository can be found here: [MilHub Microservices](https://github.com/rostikdiv/milhub-microservices.git)*
+[![Vercel Deployment](https://img.shields.io/badge/Vercel-Deployed-black.svg?logo=vercel)](https://milhub-frontend-5idkz8o0j-rostislavbilskij-1742s-projects.vercel.app)
+[![React](https://img.shields.io/badge/React-18-blue.svg?logo=react)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-5.0-purple.svg?logo=vite)](https://vitejs.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg?logo=typescript)](https://www.typescriptlang.org/)
+[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4-38B2AC.svg?logo=tailwind-css)](https://tailwindcss.com/)
+[![Framer Motion](https://img.shields.io/badge/Framer_Motion-11.0-ff0055.svg?logo=framer)](https://www.framer.com/motion/)
+[![Vitest](https://img.shields.io/badge/Vitest-Tested-yellow.svg?logo=vitest)](https://vitest.dev/)
 
-This is the React frontend for the MilHub handmade marketplace. It provides the user interface for buyers, sellers, and administrators.
+* **Live Web Application (Vercel)**: [https://milhub-frontend-5idkz8o0j-rostislavbilskij-1742s-projects.vercel.app](https://milhub-frontend-5idkz8o0j-rostislavbilskij-1742s-projects.vercel.app)
+* **Production API Gateway (Backend)**: [https://milhub-api-gateway-258044247462.us-central1.run.app](https://milhub-api-gateway-258044247462.us-central1.run.app)
+* **Backend Microservices Repository**: [https://github.com/rostikdiv/milhub-microservices.git](https://github.com/rostikdiv/milhub-microservices.git)
 
-## 📸 Screenshots
+---
 
-*(Replace these placeholders with actual screenshots of your application)*
+## 📖 Overview
 
-- **Homepage/Catalog**: `[Screenshot: Product Catalog]`
-- **Shopping Cart & Checkout**: `[Screenshot: Cart/Checkout Flow]`
-- **Seller Dashboard**: `[Screenshot: Seller Analytics/Products]`
-- **Admin Panel**: `[Screenshot: Admin Verification Panel]`
+**MilHub Web Platform** is a mission-critical Single Page Application (SPA) designed for defense logistics, military equipment procurement, and tactical gear requisitions. 
 
-## ✨ Features
+Built with React 18, Vite, TypeScript, and TailwindCSS, the application provides an ultra-fast, modern interface equipped with military clearance verification flows, role-based access control, real-time inventory management, and combat-tested equipment reviews.
 
-- **Product Catalog**: Browse and search for handmade items.
-- **Shopping Cart & Checkout**: Add items, adjust quantities, and securely checkout.
-- **Seller Dashboard**: Sellers can manage their products, view analytics, and fulfill orders.
-- **Admin Panel**: Administrators can review and approve seller verification documents (KYC).
-- **Authentication**: JWT-based login with dynamic UI rendering based on roles (Buyer, Seller, Admin).
-- **Localization**: Full i18n support for English (EN) and Ukrainian (UK).
+---
+
+## 📸 Interface Showcase (UI / UX)
+
+| 🛡️ Military Verification & Clearance | 🎯 Tactical Catalog & Restricted Access |
+| :---: | :---: |
+| ![Military Verification Flow](https://via.placeholder.com/600x340/0f172a/f97316?text=Military+Clearance+%26+Document+Upload+Flow) | ![Tactical Catalog](https://via.placeholder.com/600x340/0f172a/10b981?text=Tactical+Catalog+%26+RESTRICTED+Badges) |
+| *Encrypted document upload for military units with live status feedback* | *Public vs restricted defense hardware with real-time stock levels* |
+
+| 🏪 Seller Studio & Order Fulfillment | ⚖️ Admin Command Center |
+| :---: | :---: |
+| ![Seller Studio](https://via.placeholder.com/600x340/0f172a/3b82f6?text=Seller+Studio+%26+Inventory+Management) | ![Admin Verification Queue](https://via.placeholder.com/600x340/0f172a/8b5cf6?text=Admin+Clearance+Moderation+Queue) |
+| *Vendor inventory control, discount triggers, and return requests review* | *Real-time queue for military ID & seller KYC document approval* |
+
+---
+
+## ✨ Key Features
+
+- 🎖️ **Military Clearance & Verification**: Specialized workflow for armed forces units and officers to upload verification documents (military IDs, official requisitions) with status tracking and high-visibility re-login alerts upon approval.
+- 🛡️ **Restricted Equipment Access Control**: Visual `RESTRICTED` badges with automated checkout locking for unverified users and instantaneous unlocking for verified military units.
+- 🏬 **Tactical Hardware Catalog**: Fast search, category filtering (Drones & UAVs, Thermal Optics, Body Armor, Tactical Comms), and live stock level indicators.
+- 🏪 **Seller Studio**: Comprehensive workspace for defense equipment manufacturers and suppliers to manage inventory, configure clearance discounts, fulfill orders, and resolve return requests.
+- ⚖️ **Admin Command Center**: Real-time moderation queue for reviewing uploaded military certificates and vendor KYC credentials with document preview and rejection reason dispatch.
+- 📝 **Field Reports & Verified Purchase Reviews**: Equipment combat feedback system with `Verified Purchase` badges, star ratings, and dynamic average score recalculations.
+- 🔄 **Real-Time Data Refresh Buttons**: Interactive reload buttons across Orders, Verification, and Seller dashboards for instantaneous data synchronization without page reloading.
+- 🌐 **Bilingual Interface (EN / UK)**: Native support for English and Ukrainian languages across all views, forms, and alerts.
+
+---
 
 ## 🏗️ Tech Stack
 
-- **Framework**: React 18, Vite
-- **State Management**: Context API (for Cart, Auth, and Toast notifications)
+- **Core Framework**: React 18, TypeScript, Vite
 - **Routing**: React Router DOM v6
-- **Styling**: TailwindCSS, Framer Motion
-- **Testing**: Vitest, React Testing Library, MSW (Mock Service Worker)
-- **Features**: i18n localization, global Error Boundaries, React Hot Toast for notifications.
+- **Styling & UI**: TailwindCSS, Framer Motion, Lucide Icons, Glassmorphism design system
+- **State & Notifications**: Context API (Auth, Cart, Language), `react-hot-toast`
+- **HTTP Client**: Axios (with centralized JWT request & response interceptors)
+- **Testing**: Vitest, React Testing Library, Mock Service Worker (MSW)
+- **Hosting & CI/CD**: Vercel automated deployments with edge routing
 
 ---
 
-## 🚀 Local Development Setup
+## 🚀 Getting Started (Local Development)
 
-### 1. Requirements
-- Node.js 18+ is strictly required.
+### 1. Prerequisites
+- Node.js 18+ strictly required
+- npm 9+
 
-### 2. Environment Variables
-The application uses environment variables for configuration.
-- Copy the `.env.example` file to `.env`:
-  ```bash
-  cp .env.example .env
-  ```
-- Fill in any necessary values (e.g., `VITE_API_URL=/api/v1`).
-
-### 3. Install Dependencies
+### 2. Clone and Install Dependencies
 ```bash
+git clone https://github.com/rostikdiv/milhub-frontend.git
+cd milhub-frontend
 npm install
 ```
 
-### 4. Start the Development Server
+### 3. Environment Variables
+Create a `.env` file in the root directory:
+```env
+VITE_API_URL=/api/v1
+```
+
+### 4. Start Development Server
 ```bash
 npm run dev
 ```
-This will start the Vite server on `http://localhost:5173`.
+The application will launch on `http://localhost:5173`.
 
 ---
 
-## 🌐 API Routing & ngrok (Avoiding CORS)
+## 🌐 API Proxy & Routing
 
-To avoid CORS issues during local development, the frontend is configured to route all API calls through the Vite proxy.
-
-### Option A: Localhost (Default)
-When you run `npm run dev`, API requests to `/api/v1/...` are automatically proxied to `http://localhost:8080` (where your backend API Gateway should be running).
-
-### Option B: Using ngrok
-If you need a public URL (e.g., to test on mobile):
-1. Start ngrok: `ngrok http 5173`
-2. Open the `https://*.ngrok-free.dev` URL in your browser.
-3. Accept the ngrok warning screen.
-4. All API calls will naturally route through the Vite proxy without triggering cross-origin restrictions.
+During local development, Vite proxies all `/api/v1/*` requests to the local backend API Gateway running at `http://localhost:8080` (or the configured Cloud Run Gateway in production).
 
 ---
 
-## 📦 Production Build
+## 🧪 Testing & Code Quality
 
-To build the application for production:
 ```bash
-npm run build
-```
+# Run unit & component tests (CI mode)
+npm run test
 
-To locally preview the generated production build:
-```bash
-npm run preview
-```
+# Run tests in watch mode
+npm run test:watch
 
----
-
-## 🧹 Code Quality (Linting)
-
-To run ESLint and check for code quality issues:
-```bash
+# Code linting
 npm run lint
 ```
 
 ---
 
-## 🧪 Testing
+## 📦 Production Build
 
-The frontend uses Vitest and MSW (Mock Service Worker) for testing components and API interactions without needing a live backend.
-*Coverage includes cart logic, auth flows, and API error states.*
-
-### Run Tests (CI/CD Mode)
-Runs the test suite once and exits.
 ```bash
-npm run test
-```
+# Compile and build production bundle
+npm run build
 
-### Run Tests in Watch Mode (Development)
-Watches for file changes and re-runs tests automatically.
-```bash
-npm run test:watch
+# Preview production build locally
+npm run preview
 ```
 
 ---
 
-## 🛡️ Error Handling
-The application uses a **Dual-Logging Strategy**:
-- **UI Feedback**: User-facing errors trigger `react-hot-toast` notifications.
-- **Developer Debugging**: Stack traces and HTTP details are simultaneously logged to the browser console.
-- **Global Error Boundary**: The app is wrapped in an `<ErrorBoundary>` to catch rendering errors and display a fallback UI instead of crashing the entire page.
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
