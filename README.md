@@ -1,6 +1,6 @@
 # 🛡️ MilHub Web Platform
 
-[![Vercel Deployment](https://img.shields.io/badge/Vercel-Deployed-black.svg?logo=vercel)](https://milhub-frontend-5idkz8o0j-rostislavbilskij-1742s-projects.vercel.app)
+[![Vercel Deployment](https://img.shields.io/badge/Vercel-Deployed-black.svg?logo=vercel)](https://milhub-frontend.vercel.app)
 [![React](https://img.shields.io/badge/React-18-blue.svg?logo=react)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-5.0-purple.svg?logo=vite)](https://vitejs.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg?logo=typescript)](https://www.typescriptlang.org/)
@@ -8,7 +8,7 @@
 [![Framer Motion](https://img.shields.io/badge/Framer_Motion-11.0-ff0055.svg?logo=framer)](https://www.framer.com/motion/)
 [![Vitest](https://img.shields.io/badge/Vitest-Tested-yellow.svg?logo=vitest)](https://vitest.dev/)
 
-* **Live Web Application (Vercel)**: [https://milhub-frontend-5idkz8o0j-rostislavbilskij-1742s-projects.vercel.app](https://milhub-frontend-5idkz8o0j-rostislavbilskij-1742s-projects.vercel.app)
+* **Live Web Application (Vercel)**: [https://milhub-frontend.vercel.app](https://milhub-frontend.vercel.app)
 * **Production API Gateway (Backend)**: [https://milhub-api-gateway-258044247462.us-central1.run.app](https://milhub-api-gateway-258044247462.us-central1.run.app)
 * **Backend Microservices Repository**: [https://github.com/rostikdiv/milhub-microservices.git](https://github.com/rostikdiv/milhub-microservices.git)
 
@@ -24,15 +24,15 @@ Built with React 18, Vite, TypeScript, and TailwindCSS, the application provides
 
 ## 📸 Interface Showcase (UI / UX)
 
-| 🛡️ Military Verification & Clearance | 🎯 Tactical Catalog & Restricted Access |
+| 🎯 Tactical Catalog & Defense Hardware | 📝 Combat-Tested Field Reports & Reviews |
 | :---: | :---: |
-| ![Military Verification Flow](https://via.placeholder.com/600x340/0f172a/f97316?text=Military+Clearance+%26+Document+Upload+Flow) | ![Tactical Catalog](https://via.placeholder.com/600x340/0f172a/10b981?text=Tactical+Catalog+%26+RESTRICTED+Badges) |
-| *Encrypted document upload for military units with live status feedback* | *Public vs restricted defense hardware with real-time stock levels* |
+| ![Tactical Catalog](./docs/images/catalog.png) | ![Combat Field Reports](./docs/images/field-reports.png) |
+| *Public vs restricted defense hardware with real-time stock levels* | *Combat-verified equipment reviews and tactical performance ratings* |
 
-| 🏪 Seller Studio & Order Fulfillment | ⚖️ Admin Command Center |
+| ⚖️ Admin Moderation Command Center | 🚚 Delivery & Logistics Management |
 | :---: | :---: |
-| ![Seller Studio](https://via.placeholder.com/600x340/0f172a/3b82f6?text=Seller+Studio+%26+Inventory+Management) | ![Admin Verification Queue](https://via.placeholder.com/600x340/0f172a/8b5cf6?text=Admin+Clearance+Moderation+Queue) |
-| *Vendor inventory control, discount triggers, and return requests review* | *Real-time queue for military ID & seller KYC document approval* |
+| ![Admin Command Center](./docs/images/admin-dashboard.png) | ![Delivery & Logistics Management](./docs/images/seller-studio.png) |
+| *Real-time queue for military ID & seller KYC document approval* | *Vendor order tracking, shipment dispatch, and logistics control* |
 
 ---
 
