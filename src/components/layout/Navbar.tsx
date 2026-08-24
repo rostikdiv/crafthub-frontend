@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { SearchIcon, ShoppingCartIcon, LogOutIcon, PackageIcon, SettingsIcon, HeartIcon, ChevronDownIcon, LayoutDashboard, Store, ShieldCheckIcon, MenuIcon, XIcon } from 'lucide-react';
+import { SearchIcon, ShoppingCartIcon, LogOutIcon, PackageIcon, SettingsIcon, HeartIcon, ChevronDownIcon, LayoutDashboard, Store, MenuIcon, XIcon } from 'lucide-react';
 import { useCart } from '../../lib/cartContext';
 
 import { useTranslation } from 'react-i18next';
@@ -43,10 +43,6 @@ export function Navbar() {
 
   if (user?.role === 'ADMIN') {
     navLinks.push({ to: '/admin', label: t('nav.admin') });
-  }
-
-  if (user?.role === 'MILITARY_UNIT') {
-    navLinks.push({ to: '/military', label: t('nav.military') });
   }
 
   // Close dropdown when clicking outside
@@ -192,17 +188,6 @@ export function Navbar() {
                         >
                           <Store className="w-4 h-4" />
                           {t('userMenu.myShop')}
-                        </Link>
-                      )}
-
-                      {user.role === 'MILITARY_UNIT' && (
-                        <Link
-                          to="/military"
-                          onClick={() => setIsDropdownOpen(false)}
-                          className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-slate/5 hover:text-tactical transition-colors"
-                        >
-                          <ShieldCheckIcon className="w-4 h-4" />
-                          {t('userMenu.militaryDashboard')}
                         </Link>
                       )}
 

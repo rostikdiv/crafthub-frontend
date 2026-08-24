@@ -18,7 +18,6 @@ import { SellerStudioPage } from './pages/SellerStudioPage';
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
 import { OrderConfirmationPage } from './pages/OrderConfirmationPage';
 import { ViewDocument } from './pages/ViewDocument';
-import { MilitaryDashboardPage } from './pages/MilitaryDashboardPage';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
 import { SystemWarmupModal } from './components/common/SystemWarmupModal';
@@ -57,14 +56,6 @@ function AnimatedRoutes() {
           element={
             <ProtectedRoute>
               <DashboardPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/military"
-          element={
-            <ProtectedRoute allowedRoles={['MILITARY_UNIT', 'ADMIN']}>
-              <MilitaryDashboardPage />
             </ProtectedRoute>
           }
         />
