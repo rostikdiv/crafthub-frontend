@@ -22,10 +22,10 @@ import { useTranslation } from 'react-i18next';
 type SortOption = { label: string; params: string[] };
 
 const SORT_OPTIONS: SortOption[] = [
+  { label: 'sort.topRated', params: ['averageRating,DESC'] },
   { label: 'sort.newest', params: ['quantity,DESC', 'createdAt,DESC'] },
   { label: 'sort.priceLow', params: ['price,ASC'] },
   { label: 'sort.priceHigh', params: ['price,DESC'] },
-  { label: 'sort.topRated', params: ['averageRating,DESC'] },
 ];
 
 export function ShopPage() {
